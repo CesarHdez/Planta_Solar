@@ -60,7 +60,7 @@ def fix_excel(filename):
 		sheet_out.cell(1, i-1, headers_list[i-3])
 	
 	#print(sheet_in.cell(2371,3).value)
-	print("cant de valores faltantes ", count_nan)
+	#print("cant de valores faltantes ", count_nan)
 	data_fixed.save("datos_fixed.xlsx")
 
 def make_str_h():
@@ -148,6 +148,29 @@ def format_dataframe(dataframe, index):
     dataframe.set_index(index, inplace=True)
     dataframe = dataframe.sort_values([index])
     return dataframe
+
+def negative_to_zero(full_data, par):
+	full_data[full_data[par] < 0] = 0
+	return full_data
+
+def negative_to_positive(full_data, par):
+	full_data.loc[full_data[par] < 0, par] = full_data[par] * -1
+	return full_data
+
+def neg_irrad_2_zero(full_data):
+	irrad_name = ['IRRAD1','IRRAD2','IRRAD3','IRRAD4','IRRAD5']
+	for col in irrad_name:
+		full_data = negative_to_zero(full_data, col)
+	return full_data
+
+#elimina del data frame las filas en las que no se genera energía (horas de sol)
+def full_data_sun_hours(full_data, par):
+	full_data.drop(full_data[full_data[par] == 0].index, inplace = True)
+	return full_data
+
+
+#full_data = tools.negative_to_zero(full_data, 'IRRAD1')
+
 
 #file_name ="CL1-VSO Julio 2019.xlsx"
 #fix_excel(file_name)
