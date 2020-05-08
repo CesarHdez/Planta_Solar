@@ -1,15 +1,15 @@
-import numpy as np
+# -*- coding: utf-8 -*-
+"""
+Created on Sat Nov 17 01:20:12 2018
+
+@author: Giorgia Tandoi
+"""
+
 import pandas as pd
 from sklearn.neural_network import MLPRegressor
+import numpy as np
 
-def difference(dataset, interval=1):
-	diff = list()  
-	dataset = np.array(dataset)
-	for i in range(interval, len(dataset)):    
-		value = dataset[i] - dataset[i - interval]
-		diff.append(value.tolist())
-	return np.array(diff)
-
+# convert series to supervised learning
 def timeseries_to_supervised(data, r_inc, n_in=1, n_out=1, dropnan=True):
 
 	n_vars = 1 if type(data) is list else data.shape[1]
@@ -34,20 +34,19 @@ def timeseries_to_supervised(data, r_inc, n_in=1, n_out=1, dropnan=True):
 	# drop rows with NaN values
 	if dropnan:
 		agg.dropna(inplace=True) 
-	return agg, np.array(agg.values)
+	return np.array(agg.values)
 
-def data_split(array, percent):
-	limit = int(len(array) * percent / 100)
-	train, test = array[:limit,:], array[limit:,:]
-	return train, test, limit
+  
+# create a differenced series
+def difference(dataset, interval=1):
+	diff = list()  
+	dataset = np.array(dataset)
+	for i in range(interval, len(dataset)):    
+		value = dataset[i] - dataset[i - interval]
+		diff.append(value.tolist())
+	return np.array(diff)
 
-def fit_mlp(train, batch_size, nb_epoch, neurons, time_steps, lag_size, n_features):
-	X, y = train[:, 0:n_features], train[:, n_features:]
-	model = MLPRegressor(hidden_layer_sizes=neurons, activation='tanh', 
-                      solver='lbfgs', batch_size=batch_size, random_state=1)
-	model.fit(X, y)
-	return model
-
+# invert differenced value and rescale transformation    
 def inverse_transform(history, test_X, yhat, n_features, scaler):
     inverted = list()
     for i in range(len(yhat)):
@@ -72,3 +71,12 @@ def inverse_transform(history, test_X, yhat, n_features, scaler):
         inverted.append(inverted_diff)
     inverted = np.array(inverted)
     return inverted
+
+
+# fit a mlp network to training data
+def fit_mlp(train, batch_size, nb_epoch, neurons, time_steps, lag_size, n_features):
+	X, y = train[:, 0:n_features], train[:, n_features:]
+	model = MLPRegressor(hidden_layer_sizes=neurons, activation='tanh', 
+                      solver='lbfgs', batch_size=batch_size, random_state=1)
+	model.fit(X, y)
+	return model

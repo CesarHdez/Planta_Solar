@@ -150,7 +150,8 @@ def format_dataframe(dataframe, index):
     return dataframe
 
 def negative_to_zero(full_data, par):
-	full_data[full_data[par] < 0] = 0
+	#full_data[par] = full_data[par].clip(lower = 0)
+	full_data.loc[full_data[par] < 0, par] = 0
 	return full_data
 
 def negative_to_positive(full_data, par):
@@ -168,6 +169,9 @@ def full_data_sun_hours(full_data, par):
 	full_data.drop(full_data[full_data[par] == 0].index, inplace = True)
 	return full_data
 
+def delete_cols(full_data, cols2delete):
+	full_data = full_data.drop(cols2delete, axis=1)
+	return full_data
 
 #full_data = tools.negative_to_zero(full_data, 'IRRAD1')
 
