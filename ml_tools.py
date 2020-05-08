@@ -10,7 +10,7 @@ def difference(dataset, interval=1):
 		diff.append(value.tolist())
 	return np.array(diff)
 
-def timeseries_to_supervised(data, r_inc, n_in=1, n_out=1, dropnan=True):
+def timeseries_to_supervised_m(data, r_inc, n_in=1, n_out=1, dropnan=True):
 
 	n_vars = 1 if type(data) is list else data.shape[1]
 	df_inp = pd.DataFrame(data=data)
@@ -35,6 +35,30 @@ def timeseries_to_supervised(data, r_inc, n_in=1, n_out=1, dropnan=True):
 	if dropnan:
 		agg.dropna(inplace=True) 
 	return agg, np.array(agg.values)
+
+# convert series to supervised learning
+def series_to_supervised(data, n_in=1, n_out=1, dropnan=True):
+	n_vars = 1 if type(data) is list else data.shape[1]
+	df = pd.DataFrame(data)
+	cols, names = list(), list()
+	# input sequence (t-n, ... t-1)
+	for i in range(n_in, 0, -1):
+		cols.append(df.shift(i))
+		names += [('var%d(t-%d)' % (j+1, i)) for j in range(n_vars)]
+	# forecast sequence (t, t+1, ... t+n)
+	for i in range(0, n_out):
+		cols.append(df.shift(-i))
+		if i == 0:
+			names += [('var%d(t)' % (j+1)) for j in range(n_vars)]
+		else:
+			names += [('var%d(t+%d)' % (j+1, i)) for j in range(n_vars)]
+	# put it all together
+	agg = pd.concat(cols, axis=1)
+	agg.columns = names
+	# drop rows with NaN values
+	if dropnan:
+		agg.dropna(inplace=True)
+	return agg
 
 def data_split(array, percent):
 	limit = int(len(array) * percent / 100)

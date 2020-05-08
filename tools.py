@@ -147,6 +147,9 @@ def format_dataframe(dataframe, index):
     dataframe[index] = pd.to_datetime(dataframe[index])
     dataframe.set_index(index, inplace=True)
     dataframe = dataframe.sort_values([index])
+    cols = dataframe.columns.tolist()
+    cols = [cols[2]] + cols[:2] + cols[3:]
+    dataframe = dataframe[cols]
     return dataframe
 
 def negative_to_zero(full_data, par):
@@ -171,6 +174,15 @@ def full_data_sun_hours(full_data, par):
 
 def delete_cols(full_data, cols2delete):
 	full_data = full_data.drop(cols2delete, axis=1)
+	return full_data
+
+def change_outliers_values(full_data, par):
+	q1 = full_data[par].quantile(0.25)
+	q3 = full_data[par].quantile(0.75)
+	iqr = q3-q1 #Interquartile range
+	#fence_low  = q1-1.5*iqr
+	fence_high = q3+1.5*iqr
+	full_data.loc[full_data[par] > fence_high, par] = full_data[par].quantile(0.98)
 	return full_data
 
 #full_data = tools.negative_to_zero(full_data, 'IRRAD1')
