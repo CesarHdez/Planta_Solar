@@ -70,7 +70,7 @@ def fit_mlp(train, batch_size, nb_epoch, neurons, time_steps, lag_size, n_featur
 	model = MLPRegressor(hidden_layer_sizes=neurons, activation='tanh', 
                       solver='lbfgs', batch_size=batch_size, random_state=1)
 	model.fit(X, y)
-	return model
+	return model, X, y
 
 def inverse_transform(history, test_X, yhat, n_features, scaler):
     inverted = list()

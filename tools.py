@@ -8,138 +8,91 @@ import settings
 def ls2(path):
     return [obj.name for obj in scandir(path) if obj.is_file()]
 
-headers_list= settings.headers_list
 
 def fix_excel(filename):
+	headers_list= settings.headers_list[1:]
+	raw_data = pd.read_excel(filename, 'Data')
+	raw_data['DateTime'] = raw_data['Date'] +' '+raw_data['Time']
+	raw_data.drop(['Date', 'Time'], axis=1, inplace=True)
+	col_names =list(raw_data.columns)
+	raw_data = raw_data.reindex(columns =['DateTime'] + col_names[:-1])
+	raw_data.columns = settings.headers_list
+	raw_data = format_dataframe(raw_data, 'DateTime')
+	raw_data = raw_data[:-1]
+	return raw_data
 
-	data_orig = Workbook()
-	data_fixed = Workbook()
-	
-	data_orig = load_workbook(filename)
-	sheet_in = data_orig.get_sheet_by_name("Data")
-	
-	data_fixed = load_workbook("datos_fixed.xlsx")
-	sheet_out = data_fixed.get_sheet_by_name("Hoja1")
-	
-	headers_list= settings.headers_list[1:]#['WS1', 'WS2', 'ENERGY', 'IRRAD1', 'IRRAD2', 'IRRAD3', 'IRRAD4', 'IRRAD5', 'TEMP1', 'TEMP2', 'WANG']
-	
-	row = 2
-	sheet_out.cell(1,1, "Date Time")
-	finish_flag = False
-	count_nan = 0
-	mes = (sheet_in.cell(2, 1).value[0])
-	
-	#sheet_out.cell(row, 1, sheet_in.cell(row,1).value +" "+ sheet_in.cell(row,2).value)
-	while finish_flag == False:
-			sheet_out.cell(row, 1, str(sheet_in.cell(row,1).value) +" "+ str(sheet_in.cell(row,2).value))
-			if sheet_in.cell(row+1, 1).value[0] != mes:
-				finish_flag = True
-			else:
-				row = row+1
-	
-	
-	for i in range(3,14):
-		row2 = 1
-		finish_flag_2 = False
-		while finish_flag_2 == False:
-			if sheet_in.cell(row2,i).value != None: #relleno de espacios vacios
-				sheet_out.cell(row2, i-1, sheet_in.cell(row2,i).value)
-			else:
-				if i != 5:
-					sheet_out.cell(row2, i-1, sheet_in.cell((row2 - 289),i).value)
-					count_nan = count_nan + 1
+
+def fill_na_col_daym(data, col):
+	null_list = list(data[col].isnull().values)
+	for i in range(len(null_list)):
+		if null_list[i] == True:
+			if data.index.get_level_values(0)[i].month == data.index.get_level_values(0)[1].month:
+				fecha = data.index.get_level_values(0)[i]
+				if fecha.day > 7:
+					aux_l = []
+					for j in range(1,8):
+						aux_l.append(data.loc[(fecha-datetime.timedelta(days=j))][col])
+					data[col][i] = np.array(aux_l).mean()
 				else:
-					sheet_out.cell(row2, i-1, sheet_in.cell((row2),i).value)
-				#print("Bateo en la fila y columna", (row2-289), i)
-			if row2 > 1 and sheet_in.cell(row2, 1).value[0] != mes:
-				finish_flag_2 = True
+					aux_l = []
+					for j in range(1,8):
+						aux_l.append(data.loc[(fecha+datetime.timedelta(days=j))][col])
+					data[col][i] = np.array(aux_l).mean()
 			else:
-				row2 = row2+1
-	
-	for i in range(3,14):
-		sheet_out.cell(1, i-1, headers_list[i-3])
-	
-	#print(sheet_in.cell(2371,3).value)
-	#print("cant de valores faltantes ", count_nan)
-	data_fixed.save("datos_fixed.xlsx")
+				pass
+				#data.drop(i, axis = 0)
+	return data
 
-def make_str_h():
-    str_h=[]
-    for i in range(24):
-        if i < 10:
-            str_h.append('0'+str(i))
-        else:
-            str_h.append(str(i))
-    return str_h
 
-str_h = make_str_h()
-#print(mes.describe())
-def get_day_means(fecha, mes, str_h, par):
-    fecha = str(fecha)[:11]
-    day_means=[]
-    #obtener las medias diarias
-    for i in range(len(str_h)):
-        if i == 0:
-            day_means.append(float(np.mean(np.array(mes.loc[fecha + str_h[i]:fecha + str_h[i+1] + ':00', par]))))
-        elif i !=23:
-            day_means.append(float(np.mean(np.array(mes.loc[fecha + str_h[i] + ':05':fecha + str_h[i+1] + ':00', par]))))
-        else:
-            day_means.append(float(np.mean(np.array(mes.loc[fecha + str_h[i], par]))))
-    return day_means
+def fill_na_all(data):
+	par_list = ['IRRAD1', 'IRRAD2', 'IRRAD3', 'IRRAD4', 'IRRAD5', 'TEMP1', 'TEMP2']
+	for i in par_list:
+		data = fill_na_col_daym(data, i)
+	data['WS1'].fillna(method = 'backfill', inplace = True)
+	data['WS2'].fillna(method = 'backfill', inplace = True)
+	data['WANG'].fillna(method = 'backfill', inplace = True)
+	return data
 
-def get_day_energy(fecha, mes, str_h):
-    fecha = str(fecha)[:11]
-    day_energy=[]
-    #obtener las medias diarias
-    for i in range(len(str_h)):
-        if str_h[i]=='00' or str_h[i]=='23':
-            day_energy.append(0.0)
-        else:
-            day_energy.append(float(mes.loc[fecha + str_h[i+1] + ':00', 'ENERGY']))
-    return day_energy
+
+def last_day_of_month(any_day):
+    next_month = any_day.replace(day=28) + datetime.timedelta(days=4)  # this will never fail
+    return next_month - datetime.timedelta(days=next_month.day)
+
+
+def resample_to_hour(data):
+	i = 0
+	fecha_init = data.index.get_level_values(0)[0]
+	fecha = fecha_init
+	last_href = last_day_of_month(fecha) + datetime.timedelta(hours=23)
+	resp_data = pd.DataFrame(columns= settings.headers_list_f, index= range(24*last_href.day))
+	while fecha <= last_href:
+		if fecha != fecha_init:
+			resp_data['ENERGY'][i-1]= data.loc[fecha]['ENERGY']
+		resp_data['DateTime'][i] = fecha
+		for j in list(data.columns)[1:]:
+			resp_data[j][i]= np.array(data.loc[str(fecha)[:13]][j]).mean()
+		i = i + 1
+		fecha = fecha + datetime.timedelta(hours=1)
+	resp_data['ENERGY'][i-1]= 0 
+	resp_data['DateTime'] = pd.to_datetime(resp_data['DateTime'])
+	resp_data.set_index('DateTime', inplace=True)
+	if resp_data['ENERGY'].isnull().values.any():
+		resp_data = fill_na_col_daym(resp_data, 'ENERGY')
+	return resp_data
     
-def get_day_hours(fecha):
-    fecha = str(fecha)[:11]
-    date_h_list=[]
-    for i in range(len(str_h)):
-        date_h_list.append(fecha + str_h[i] + ':00')
-    return date_h_list
-
 
 def add_day(fecha):
     return (fecha + datetime.timedelta(days=1))
 
-def add_data_day(fecha, mes, full_data):
-    temp_day_data = []
-    temp_day_data.append(get_day_hours(fecha))
-    for i in range (1,len(headers_list)):
-        if i != 3:
-            temp_day_data.append(get_day_means(fecha, mes, str_h, headers_list[i]))
-        else:
-            temp_day_data.append(get_day_energy(fecha, mes, str_h))
-    
-    for i in range(len(str_h)):
-        h_reg = []
-        for j in range (len(headers_list)):
-            h_reg.append(temp_day_data[j][i])
-        s1 = pd.Series(h_reg, index=headers_list)
-        full_data = full_data.append(s1, ignore_index = True)
-    return full_data
-
 
 def add_data_month(full_data, month_file_name):    
-	fix_excel(month_file_name)
-	mes = pd.read_excel('datos_fixed.xlsx', 'Hoja1', index_col= 0, parse_dates = True)
-	#aca podria ir el tratamiento de series temporales aplicado a mes con fill
-	fecha_init = mes.index.get_level_values(0)[0]
-	fecha = fecha_init
-	
-	while True:
-	    full_data = add_data_day(fecha, mes, full_data)
-	    old_fecha = fecha
-	    fecha = add_day(fecha)
-	    if fecha.month != old_fecha.month:
-	        break
+	data_fx = fix_excel(month_file_name)
+	data_fx = fill_na_all(data_fx)
+	data_fx = resample_to_hour(data_fx)
+	if full_data.empty:
+		full_data = data_fx
+	else:
+		full_data = pd.concat([full_data, data_fx])
 	return full_data
 
 
@@ -152,14 +105,17 @@ def format_dataframe(dataframe, index):
     dataframe = dataframe[cols]
     return dataframe
 
+
 def negative_to_zero(full_data, par):
 	#full_data[par] = full_data[par].clip(lower = 0)
 	full_data.loc[full_data[par] < 0, par] = 0
 	return full_data
 
+
 def negative_to_positive(full_data, par):
 	full_data.loc[full_data[par] < 0, par] = full_data[par] * -1
 	return full_data
+
 
 def neg_irrad_2_zero(full_data):
 	irrad_name = ['IRRAD1','IRRAD2','IRRAD3','IRRAD4','IRRAD5']
@@ -167,28 +123,30 @@ def neg_irrad_2_zero(full_data):
 		full_data = negative_to_zero(full_data, col)
 	return full_data
 
+
 #elimina del data frame las filas en las que no se genera energía (horas de sol)
 def full_data_sun_hours(full_data, par):
 	full_data.drop(full_data[full_data[par] == 0].index, inplace = True)
 	return full_data
 
+
 def delete_cols(full_data, cols2delete):
 	full_data = full_data.drop(cols2delete, axis=1)
 	return full_data
+
 
 def change_outliers_values(full_data, par):
 	q1 = full_data[par].quantile(0.25)
 	q3 = full_data[par].quantile(0.75)
 	iqr = q3-q1 #Interquartile range
+	#print(q1,q3, iqr)
 	#fence_low  = q1-1.5*iqr
-	fence_high = q3+1.5*iqr
-	full_data.loc[full_data[par] > fence_high, par] = full_data[par].quantile(0.98)
+	#fence_high = q3+1.5*iqr
+	#print(fence_high)
+    #full_data.loc[full_data[par] > 10000, par] = 8000
+	quant = 0.99
+	threshold = full_data[par].quantile(quant)
+	print("threhold: " ,threshold)
+	full_data.loc[full_data[par] > threshold, par] = full_data[par].quantile(quant)
 	return full_data
 
-#full_data = tools.negative_to_zero(full_data, 'IRRAD1')
-
-
-#file_name ="CL1-VSO Julio 2019.xlsx"
-#fix_excel(file_name)
-#
-#print("Done")
