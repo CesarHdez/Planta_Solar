@@ -3,73 +3,90 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sbn
 import numpy as np
-from sklearn.preprocessing import MinMaxScaler
-from sklearn.preprocessing import LabelEncoder
-from sklearn.neural_network import MLPRegressor
+#from sklearn.preprocessing import MinMaxScaler
+#from sklearn.preprocessing import LabelEncoder
+#from sklearn.neural_network import MLPRegressor
 
-from keras.models import Sequential
-from keras.layers import Dense
-from keras.layers import Softmax
-from keras.layers import LSTM
+#from keras.models import Sequential
+#from keras.layers import Dense
+#from keras.layers import Softmax
+#from keras.layers import LSTM
 
-from sklearn import metrics
-import math
+#from sklearn import metrics
+#import math
 #import keras
 
 import settings
 import tools
-import ml_tools
+#import ml_tools
 
 
-#Obtener los nombres de los archivos para procesar
-files_name = tools.ls2(settings.path)
-#crear dataframe con los headers de acuerdo a la data
-
-#full_ = tools.fix_excel(settings.path +'/' + files_name[0])
-#data = tools.fill_na_all(full_)
-#data2 = tools.resample_to_hour(data)
-
-full_data= pd.DataFrame()
-#full_= pd.DataFrame(columns= settings.headers_list)
-
-
-#agregar al dataframe cada mes(archivo de excel)
-for i in files_name:
-    full_data =tools.add_data_month(full_data, settings.path +'/' + i)
-    
-full_data = full_data.sort_index(axis=0)
+##Obtener los nombres de los archivos para procesar
+#files_name = tools.ls2(settings.path)
+##crear dataframe con los headers de acuerdo a la data
 #
-##full_data.to_excel('example.xlsx', sheet_name='example')
+##full_ = tools.fix_excel(settings.path +'/' + files_name[0])
+##data = tools.fill_na_all(full_)
+##data2 = tools.resample_to_hour(data)
 #
-#cambiar valores de radiación solar negativos a zero
-full_data = tools.neg_irrad_2_zero(full_data)
+#full_data= pd.DataFrame()
+##full_= pd.DataFrame(columns= settings.headers_list)
 #
-#cambiar los datos negativos de generación de energía a positivos
-full_data = tools.negative_to_positive(full_data, 'ENERGY')
 #
-#data1 = list(full_data['ENERGY'].values)
-#data1.sort(reverse = True)
-#print(data1[:10])
-#
+##agregar al dataframe cada mes(archivo de excel)
+#for i in files_name:
+#    full_data =tools.add_data_month(full_data, settings.path +'/' + i)
+#    
+#full_data = full_data.sort_index(axis=0)
+##
+###full_data.to_excel('example.xlsx', sheet_name='example')
+##
+##cambiar valores de radiación solar negativos a zero
+#full_data = tools.neg_irrad_2_zero(full_data)
+##
+##cambiar los datos negativos de generación de energía a positivos
+#full_data = tools.negative_to_positive(full_data, 'ENERGY')
+##
+##data1 = list(full_data['ENERGY'].values)
+##data1.sort(reverse = True)
+##print(data1[:10])
+##
 ##cambiar valores extremos
 #full_data = tools.change_outliers_values(full_data, 'ENERGY')
+##
+##data1 = list(full_data['ENERGY'].values)
+##data1.sort(reverse = True)
+##print(data1[:10])
+##
+##
+##obtener solo las horas de sol
+#full_data = tools.full_data_sun_hours(full_data, 'ENERGY')
 #
-#data1 = list(full_data['ENERGY'].values)
-#data1.sort(reverse = True)
-#print(data1[:10])
-#
-#
-#obtener solo las horas de sol
-full_data = tools.full_data_sun_hours(full_data, 'ENERGY')
+##Eliminación de columnas con las que no se va a trabajar
+#full_data = tools.delete_cols(full_data, settings.cols2delete)
 
-#Eliminación de columnas con las que no se va a trabajar
-full_data = tools.delete_cols(full_data, settings.cols2delete)
+def data_prep():	
+    files_name = tools.ls2(settings.path)
+    full_data= pd.DataFrame()
+    for i in files_name:
+        full_data =tools.add_data_month(full_data, settings.path +'/' + i)
+    full_data = full_data.sort_index(axis=0)
+    full_data = tools.neg_irrad_2_zero(full_data)
+    full_data = tools.negative_to_positive(full_data, 'ENERGY')
+    full_data = tools.change_outliers_values(full_data, 'ENERGY')
+    #full_data = tools.full_data_sun_hours(full_data, 'ENERGY')
+    full_data = tools.delete_cols(full_data, settings.cols2delete)
+    full_data = full_data.astype(float)
+    return full_data
+
+full_data = data_prep()
+full_data.to_excel('full_data.xlsx', sheet_name='data')
 #
 #full_data contiene los datos con frecuencia de una hora.
 #full_data en distintas frecuencias
-#daily = full_data.resample('D').mean()
-#weekly = full_data.resample('W').mean()
-#monthly = full_data.resample('M').mean()
+daily = full_data.resample('D').mean()
+weekly = full_data.resample('W').mean()
+monthly = full_data.resample('M').mean()
 
 
 
@@ -135,10 +152,10 @@ cor = dataset.astype(float).corr(method = 'pearson')
 print(cor)
 #sbn.heatmap(cor, cmap='coolwarm',
 #               square=True, ax=ax)
-#sbn.heatmap(cor, mask=np.zeros_like(cor, dtype=np.bool), cmap=sbn.diverging_palette(220, 10, as_cmap=True),
-#               square=True, ax=ax)
-sbn.heatmap(cor, mask=np.zeros_like(cor, dtype=np.bool), cmap=sbn.light_palette((210, 90, 60), input="husl"),
+sbn.heatmap(cor, mask=np.zeros_like(cor, dtype=np.bool), cmap=sbn.diverging_palette(200, 20, as_cmap=True),
                square=True, ax=ax)
+#sbn.heatmap(cor, mask=np.zeros_like(cor, dtype=np.bool), cmap=sbn.light_palette((100, 90, 60), input="husl"),
+#               square=True, ax=ax)
 
 
 #--------------------------------------------------------

@@ -28,15 +28,22 @@ def fill_na_col_daym(data, col):
 		if null_list[i] == True:
 			if data.index.get_level_values(0)[i].month == data.index.get_level_values(0)[1].month:
 				fecha = data.index.get_level_values(0)[i]
+				#print(fecha, col)
 				if fecha.day > 7:
 					aux_l = []
 					for j in range(1,8):
-						aux_l.append(data.loc[(fecha-datetime.timedelta(days=j))][col])
+						if (fecha-datetime.timedelta(days=j)) in data.index:
+							aux_l.append(data.loc[(fecha-datetime.timedelta(days=j))][col])
+						else:
+							aux_l.append(0)
 					data[col][i] = np.array(aux_l).mean()
 				else:
 					aux_l = []
 					for j in range(1,8):
-						aux_l.append(data.loc[(fecha+datetime.timedelta(days=j))][col])
+						if (fecha+datetime.timedelta(days=j)) in data.index:
+							aux_l.append(data.loc[(fecha+datetime.timedelta(days=j))][col])
+						else:
+							aux_l.append(0)
 					data[col][i] = np.array(aux_l).mean()
 			else:
 				pass
@@ -51,6 +58,9 @@ def fill_na_all(data):
 	data['WS1'].fillna(method = 'backfill', inplace = True)
 	data['WS2'].fillna(method = 'backfill', inplace = True)
 	data['WANG'].fillna(method = 'backfill', inplace = True)
+	par_list = ['IRRAD1', 'IRRAD2', 'IRRAD3', 'IRRAD4', 'IRRAD5', 'TEMP1', 'TEMP2']
+	for i in par_list:
+		data = fill_na_col_daym(data, i)
 	return data
 
 
@@ -145,8 +155,9 @@ def change_outliers_values(full_data, par):
 	#print(fence_high)
     #full_data.loc[full_data[par] > 10000, par] = 8000
 	quant = 0.99
-	threshold = full_data[par].quantile(quant)
-	print("threhold: " ,threshold)
+	#threshold = full_data[par].quantile(quant)
+	threshold = 10000
+	#print("threhold: " ,threshold)
 	full_data.loc[full_data[par] > threshold, par] = full_data[par].quantile(quant)
 	return full_data
 
