@@ -138,7 +138,7 @@ model.add(LSTM(120, return_sequences=True, input_shape=x_train.shape[-2:]))
 model.add(LSTM(16, activation ='relu'))
 model.add(Dense(24))
 model.compile(optimizer=tf.keras.optimizers.RMSprop(clipvalue=1.0), loss='mae')
-m_performance = model.fit(x_train, y_train, batch_size = 256, epochs= 10, shuffle = False, validation_data = (x_val, y_val))
+m_performance = model.fit(x_train, y_train, batch_size = 256, epochs= 100, shuffle = False, validation_data = (x_val, y_val))
 
 plot_train_history(m_performance, 'Single Step Training and validation loss')
 

@@ -161,3 +161,7 @@ def change_outliers_values(full_data, par):
 	full_data.loc[full_data[par] > threshold, par] = full_data[par].quantile(quant)
 	return full_data
 
+def data_split(array, percent):
+	limit = int(len(array) * percent / 100)
+	train, test = array[:limit,:], array[limit:,:]
+	return train, test, limit

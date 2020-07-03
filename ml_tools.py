@@ -1,98 +1,90 @@
 import numpy as np
 import pandas as pd
-from sklearn.neural_network import MLPRegressor
+import datetime
+import tools
 
-def difference(dataset, interval=1):
-	diff = list()  
-	dataset = np.array(dataset)
-	for i in range(interval, len(dataset)):    
-		value = dataset[i] - dataset[i - interval]
-		diff.append(value.tolist())
-	return np.array(diff)
+#-----------------
+#With data
+#-----------------
 
-def timeseries_to_supervised_m(data, r_inc, n_in=1, n_out=1, dropnan=True):
+def univariate_data(dataset, start_index, end_index, history_size, target_size):
+    data = []
+    labels = []
+    start_index = start_index + history_size
+    if end_index is None or end_index > (len(dataset) - target_size):
+        end_index = len(dataset) - target_size
+    for i in range(start_index, end_index):
+        indices = range(i-history_size, i)
+        #Reshape data to (history, 1)
+        data. append(np.reshape(dataset[indices], (history_size, 1)))
+        labels.append(dataset[i+target_size])
+    return np.array(data), np.array(labels)
 
-	n_vars = 1 if type(data) is list else data.shape[1]
-	df_inp = pd.DataFrame(data=data)
-	df_out = pd.DataFrame(data=r_inc)
-	cols, names = list(), list()
-	# input sequence (t-n, ... t-1)
-	for i in range(n_in, 0, -1):
-		cols.append(df_inp.shift(i))
-		names += [('var%d(t-%d)' % (j+1, i)) for j in range(n_vars)]
-        
-	# forecast sequence (t, t+1, ... t+n)
-	for i in range(0, n_out):
-		cols.append(df_out.shift(-i))
-		if i == 0:
-			names += [('var%d(t)' % (n_vars+1))]
-		else:
-			names += [('var%d(t+%d)' % (n_vars+1, i))]
-	# put it all together
-	agg = pd.concat(cols, axis=1)
-	agg.columns = names
-	# drop rows with NaN values
-	if dropnan:
-		agg.dropna(inplace=True) 
-	return agg, np.array(agg.values)
-
-# convert series to supervised learning
-def series_to_supervised(data, n_in=1, n_out=1, dropnan=True):
-	n_vars = 1 if type(data) is list else data.shape[1]
-	df = pd.DataFrame(data)
-	cols, names = list(), list()
-	# input sequence (t-n, ... t-1)
-	for i in range(n_in, 0, -1):
-		cols.append(df.shift(i))
-		names += [('var%d(t-%d)' % (j+1, i)) for j in range(n_vars)]
-	# forecast sequence (t, t+1, ... t+n)
-	for i in range(0, n_out):
-		cols.append(df.shift(-i))
-		if i == 0:
-			names += [('var%d(t)' % (j+1)) for j in range(n_vars)]
-		else:
-			names += [('var%d(t+%d)' % (j+1, i)) for j in range(n_vars)]
-	# put it all together
-	agg = pd.concat(cols, axis=1)
-	agg.columns = names
-	# drop rows with NaN values
-	if dropnan:
-		agg.dropna(inplace=True)
-	return agg
 
 def data_split(array, percent):
 	limit = int(len(array) * percent / 100)
-	train, test = array[:limit,:], array[limit:,:]
-	return train, test, limit
+	return limit
 
-def fit_mlp(train, batch_size, nb_epoch, neurons, time_steps, lag_size, n_features):
-	X, y = train[:, 0:n_features], train[:, n_features:]
-	model = MLPRegressor(hidden_layer_sizes=neurons, activation='tanh', 
-                      solver='lbfgs', batch_size=batch_size, random_state=1)
-	model.fit(X, y)
-	return model, X, y
+def normaize(data_u):
+	data_mean = data_u.mean()
+	data_std = data_u.std()
+	data_u = (data_u - data_mean)/data_std
+	return data_u, data_mean, data_std
 
-def inverse_transform(history, test_X, yhat, n_features, scaler):
-    inverted = list()
-    for i in range(len(yhat)):
-        forecast = np.array(yhat[i])
-        if yhat.ndim==1: 
-            forecast = forecast.reshape(1, 1)
-        else:
-            forecast = forecast.reshape(1, yhat.shape[1])
-        X = np.array(test_X[i])
-        X = X.reshape(1, test_X.shape[1])
-        X_and_forecast = np.concatenate((X,forecast), axis=1)
-        
-        inv_scale = np.array(scaler.inverse_transform(X_and_forecast))
-        inv_scale = np.array(inv_scale[0, n_features:])
-        
-        index = len(history) - len(yhat) +i -1
-        last_ob = history[index]
-        inverted_diff = list()
-        inverted_diff.append(inv_scale[0]+last_ob)
-        for j in range(1, len(inv_scale)):
-            inverted_diff.append(inv_scale[j] + inverted_diff[j-1])
-        inverted.append(inverted_diff)
-    inverted = np.array(inverted)
-    return inverted
+#-----------------
+#With the results
+#-----------------
+
+def desnormalize(data, mean, std):
+    des_norm = (data*std)+mean
+    return des_norm
+
+def model_out_tunep(yhat):
+	yhat[yhat < 0] = 0
+	return yhat
+
+def forecast_dataframe(data, yhat, n_ahead, hist_tail=300):
+	fc = data.tail(hist_tail).copy() 
+	fc['type'] = 'history'
+	fc = fc[['ENERGY', 'type']]
+
+	#
+	last_date = fc.index[-1]
+	hat_frame = pd.DataFrame({
+	    'DateTime': [last_date + datetime.timedelta(hours=x + 1) for x in range(n_ahead)], 
+	    'ENERGY': yhat,
+	    'type': 'forecast'
+	})
+	hat_frame['DateTime']=pd.to_datetime(hat_frame['DateTime'])
+	hat_frame.set_index('DateTime', inplace=True)
+	fc = fc.append(hat_frame)
+	#fc = tools.negative_to_zero(fc, 'ENERGY')
+	fc ['DateTime'] = fc.index
+	fc.reset_index(inplace=True, drop=True)
+	return fc
+
+def predict_n_ahead(model, n_ahead, last_input):
+    X = last_input
+    X = np.reshape(X, (1, len(X), 1))
+    #yhat = []
+    
+    yhat = model.predict(X)
+    
+    yhat = []
+    
+    for _ in range(n_ahead):
+        # Making the prediction
+        fc = model.predict(X)
+        yhat.append(fc)
+    
+        # Creating a new input matrix for forecasting
+        X = np.append(X, fc)
+    
+        # Ommiting the first variable
+        X = np.delete(X, 0)
+    
+        # Reshaping for the next iteration
+        X = np.reshape(X, (1, len(X), 1))
+    
+    yhat = [y[0][0] for y in yhat]
+    return yhat
