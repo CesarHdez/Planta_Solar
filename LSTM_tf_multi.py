@@ -103,7 +103,7 @@ dataset = (dataset - data_mean)/data_std
 
 past_hist= 240
 future_target = 72
-STEP = 6
+STEP = 1
 
 
 x_train, y_train = multivariate_data(dataset, dataset[:, 0], 0,
@@ -139,7 +139,7 @@ yhat = desnormalize(yhat, data_mean[0], data_std[0])
 fc['forecast'] = yhat
 fc = fc[[ 'ENERGY', 'forecast']]
 # Ploting the forecasts
-plt.figure(figsize=(20, 8))
+plt.figure(figsize=(10, 6))
 for dtype in ['ENERGY', 'forecast']:
     plt.plot(
         fc.index,

@@ -9,6 +9,7 @@ from keras.models import load_model
 from keras.layers import Dense
 from keras.layers import LSTM
 
+
 import settings
 import tools
 import graphs
@@ -19,7 +20,7 @@ import ml_tools
 #
 #print(conf["y_var"])
 
-data = pd.read_excel('full_data.xlsx', sheet_name='data')
+data = pd.read_excel('/content/solar_plant/full_data.xlsx', sheet_name='data')
 data['DateTime'] = pd.to_datetime(data['DateTime'])
 data.set_index('DateTime', inplace=True)
 data = data.astype(float)
@@ -47,9 +48,9 @@ model.add(Dense(1))
 model.compile(optimizer='adam', loss='mae', metrics=['mse', 'mae', 'mape', 'cosine'])
 print(model.summary())
 m_perf = model.fit(x_train, y_train, batch_size = 256, epochs= 10, shuffle = False, validation_data = (x_val, y_val))
-model.save(settings.m_path+'lstm_u.h5')
+#model.save(settings.m_path+'lstm_u.h5')
 
-graphs.plot_model_metric(m_perf, 'loss', True)
+graphs.plot_model_metric(m_perf, 'loss', False)
 
 #model = load_model('./models/lstm_u.h5')
 
@@ -78,7 +79,7 @@ model.add(Dense(1))
 model.compile(optimizer='adam', loss='mae')
 m_perf = model.fit(x_train, y_train, batch_size = 256, epochs= 10, shuffle = False)
 
-graphs.plot_model_metric(m_perf, 'loss', save = True)
+graphs.plot_model_metric(m_perf, 'loss', save = False)
 
 n_ahead = 24
 last_input= x_train[-1]

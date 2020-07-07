@@ -1,0 +1,14 @@
+{
+	"y_var": "ENERGY",
+	"batch_size" : 256,
+	"epoch" : 10,
+	"lstm1" : 120,
+	"lstm2" : 60,
+	"lstm3" : 40,
+	"loss" : "mae",
+	"past_hist" : 72,
+	"future_target" : 0,
+	"split_p" : 90,
+	"metrics" : ["mse", "mae", "mape", "cosine"],
+	"n_ahead" : 24
+}
