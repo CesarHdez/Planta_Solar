@@ -7,12 +7,16 @@ from keras.models import Sequential
 from keras.layers import Dense
 from keras.layers import LSTM
 import tensorflow as tf
+import json
 
 import ml_tools
 import graphs
 
 mpl.rcParams['figure.figsize'] = (8, 6)
 mpl.rcParams['axes.grid'] = False
+
+with open('lstm_config.json') as config_file:
+    conf = json.load(config_file)
 
 
 features = ['ENERGY', 'WS1', 'TEMP1', 'IRRAD1']
@@ -51,12 +55,13 @@ print ('\n Target temperature to predict : {}'.format(y_train[0].shape))
 
 #graphs.multi_step_plot(x_train[0], y_train[0], np.array([0]), STEP)
 
-
+##############################################################################################
 model = Sequential()
 model.add(LSTM(120, return_sequences=True, input_shape=x_train.shape[-2:]))
 model.add(LSTM(16, activation ='relu'))
 model.add(Dense(1))
-model.compile(optimizer=tf.keras.optimizers.RMSprop(clipvalue=1.0), loss='mae')
+print(model.summary())
+model.compile(optimizer=tf.keras.optimizers.RMSprop(clipvalue=1.0), loss='mae',metrics=[conf["metrics"]])
 m_performance = model.fit(x_train, y_train, batch_size = 256, epochs= 10, shuffle = False, validation_data = (x_val, y_val))
 
 graphs.plot_model_metric(m_performance, 'loss')
@@ -66,24 +71,18 @@ yhat = model.predict(x_val)
 it = 0
 graphs.multi_step_plot(x_val[it], y_val[it], yhat[it], STEP)
 
-#Constructing the forecast dataframe
-#fc = data.tail(len(yhat)).copy()
-##fc.reset_index(inplace=True)
-#
-#yhat = desnormalize(yhat[0], data_mean[0], data_std[0])
-#
-#fc['forecast'] = yhat
-#fc = fc[[ 'ENERGY', 'forecast']]
-## Ploting the forecasts
-#plt.figure(figsize=(20, 8))
-#for dtype in ['ENERGY', 'forecast']:
-#    plt.plot(
-#        fc.index,
-#        dtype,
-#        data=fc,
-#        label=dtype,
-#        alpha=0.8
-#    )
-#plt.legend()
-#plt.grid()
-#plt.show()
+yhat = ml_tools.desnormalize(yhat, data_mean[0], data_std[0])
+
+yhat = ml_tools.model_out_tunep(yhat)
+
+graphs.plot_model_learn(data, yhat)
+###############################################################################################
+
+
+
+
+#n_ahead = 24
+#last_input = 
+#yhat2 = ml_tools.predict_n_ahead(model, n_ahead, last_input)
+#graphs.plot_next_forecast(data, yhat, n_ahead)
+

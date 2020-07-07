@@ -43,8 +43,8 @@ def data_split(array, percent):
 	return limit
 
 def normaize(data_u):
-	data_mean = data_u.mean()
-	data_std = data_u.std()
+	data_mean = data_u.mean(axis=0)
+	data_std = data_u.std(axis=0)
 	data_u = (data_u - data_mean)/data_std
 	return data_u, data_mean, data_std
 
