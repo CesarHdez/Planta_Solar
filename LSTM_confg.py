@@ -1,10 +1,7 @@
-import matplotlib as mpl
-import matplotlib.pyplot as plt
 import numpy as np
-import datetime
-import time
 import pandas as pd
 import json
+
 #from tensorflow.keras.models import Sequential
 #from tensorflow.keras.models import load_model
 #from tensorflow.keras.layers import Dense
@@ -17,14 +14,15 @@ from keras.layers import Dense
 from keras.layers import LSTM
 
 import settings
-import tools
 import graphs
 import ml_tools
 
-with open('lstm_config.json') as config_file:
+ml_tools.clean_output_folders()
+
+with open(settings.conf_path) as config_file:
     conf = json.load(config_file)
 
-data = pd.read_excel('full_data.xlsx', sheet_name='data')
+data = pd.read_excel(settings.ex_data, sheet_name='data')
 data['DateTime'] = pd.to_datetime(data['DateTime'])
 data.set_index('DateTime', inplace=True)
 data = data.astype(float)
@@ -56,19 +54,22 @@ m_perf = model.fit(x_train, y_train, batch_size = conf["batch_size"], epochs= co
 #m_perf = model.fit(x_train, y_train, batch_size = conf["batch_size"], epochs= conf["epoch"], shuffle = False, validation_data = (x_val, y_val), callbacks=[tensorboard])
 model.save(settings.m_path+'lstm_u.h5')
 
-graphs.plot_model_metric(m_perf, 'loss', True)
+graphs.plot_model_metric(m_perf, 'loss', save = True)
 
-#model = load_model('./models/lstm_u.h5')
+for i in conf["metrics"]:
+    graphs.plot_model_metric(m_perf, i, save = True)
+
+#model = load_model(settings.m_path+'lstm_u.h5')
 
 yhat= model.predict(x_val)
 #yhat = [y[0] for y in model.predict(x_val)]
 
 it = 17
-graphs.show_plot([x_val[it], y_val[it], yhat[it]], 0,'LSTM model')
+graphs.show_plot([x_val[it], y_val[it], yhat[it]], 0,'LSTM model', True)
 
 yhat = ml_tools.desnormalize(yhat, data_mean, data_std)
 
-graphs.plot_model_learn(data, yhat)
+graphs.plot_model_learn(data, yhat, True)
 
 ####################################
 # Predecir los N siguientes valores
@@ -84,7 +85,7 @@ x_train, y_train = ml_tools.univariate_data(data_u, 0, train_split, u_past_hist,
 model = Sequential()
 model.add(LSTM(conf["lstm1"], input_shape=x_train.shape[-2:]))
 model.add(Dense(1))
-model.compile(optimizer='adam', loss=conf["loss"])
+model.compile(optimizer='adam', loss=conf["loss"],  metrics=[conf["metrics"]])
 m_perf = model.fit(x_train, y_train, batch_size = conf["batch_size"], epochs= conf["epoch"], shuffle = False)
 
 graphs.plot_model_metric(m_perf, 'loss', save = True)
@@ -99,9 +100,10 @@ yhat = ml_tools.desnormalize(np.array(yhat), data_mean, data_std)
 
 yhat = ml_tools.model_out_tunep(yhat)
 
-graphs.plot_next_forecast(data, yhat, n_ahead)
+graphs.plot_next_forecast(data, yhat, n_ahead, save=True)
 
 fc = ml_tools.forecast_dataframe(data, yhat, n_ahead)
 fc =fc.iloc[-49:]
 print(fc)
 
+ml_tools.save_experiment()

@@ -1,6 +1,11 @@
 import numpy as np
 import pandas as pd
 import datetime
+import os
+import time
+import shutil
+import glob
+
 import tools
 import settings
 #-----------------
@@ -105,3 +110,42 @@ def predict_n_ahead(model, n_ahead, last_input):
     
     yhat = [y[0][0] for y in yhat]
     return yhat
+
+#-----------------
+#With experiments
+#-----------------
+
+def save_experiment(multi_model=False):
+    if not os.path.exists(settings.exp_path):
+        os.mkdir(settings.exp_path)
+    time_name = str(time.time())
+    dir_name = settings.exp_path + time_name
+    try:
+        os.mkdir(dir_name)
+    except:
+        print("Directory Error")
+    
+    #graficos
+    for pic in glob.glob(settings.g_path+"\\*.png"):
+        shutil.copy2(pic, dir_name)
+        
+    #modelos
+    for pic in glob.glob(settings.m_path+"\\*.h5"):
+        shutil.copy2(pic, dir_name)
+        
+    #config
+    if multi_model:
+        shutil.copy2(settings.this_path+'lstm_config.json', dir_name)
+    else:
+        shutil.copy2(settings.this_path+'lstm_m_config.json', dir_name)
+    
+def clean_output_folders():
+    if os.path.exists(settings.g_path):
+        shutil.rmtree(settings.g_path)
+    if os.path.exists(settings.m_path):
+        shutil.rmtree(settings.m_path)
+    try:
+        os.mkdir(settings.g_path)
+        os.mkdir(settings.m_path)
+    except:
+        print("Directory Error")

@@ -36,20 +36,26 @@ def show_plot(plot_data, delta, title, save=False):
 	plt.grid()
 	if save:
 		plt.savefig(settings.g_path+title+'.png')
+	plt.grid()
 	plt.show()
 
-def multi_step_plot(history, true_future, prediction, STEP):
+def multi_step_plot(history, true_future, prediction, STEP, save=False):
 	plt.figure(figsize=(12, 6))
 	num_in = create_time_steps(len(history))
 	num_out = len(true_future)
-
-	plt.plot(num_in, np.array(history[:, 1]), label='History')
+	title ='Multi Step Prediction'
+	plt.plot(num_in, np.array(history), label='History')
 	plt.plot(np.arange(num_out)/STEP, np.array(true_future), 'bo',
 	         label='True Future')
 	if prediction.any():
 	  plt.plot(np.arange(num_out)/STEP, np.array(prediction), 'ro',
 	           label='Predicted Future')
 	plt.legend(loc='upper left')
+	plt.title(title)
+	plt.grid()
+	if save:
+		plt.savefig(settings.g_path+title+'.png')
+	plt.grid()
 	plt.show()
 
 def plot_model_learn(data, yhat, save=False):
@@ -60,7 +66,7 @@ def plot_model_learn(data, yhat, save=False):
 	fc.columns=['actual','forecast']
 	# Ploting the forecasts
 	title= 'Model Results'
-	plt.figure(figsize=(20, 8))
+	plt.figure(figsize=(12, 6))
 	for dtype in ['actual', 'forecast']:
 	    plt.plot(
 	        fc.index,
@@ -75,7 +81,8 @@ def plot_model_learn(data, yhat, save=False):
 	plt.legend()
 	plt.grid()
 	if save:
-  		plt.savefig(settings.g_path+title+'.png')
+		plt.savefig(settings.g_path+title+'.png')
+	plt.grid()
 	plt.show()
 
 def plot_next_forecast(data, yhat, n_ahead, hist_tail= 300, save=False):
@@ -84,7 +91,7 @@ def plot_next_forecast(data, yhat, n_ahead, hist_tail= 300, save=False):
 	#
 	# Ploting the forecasts
 	title= 'Next ' + str(n_ahead) +' Forecast'
-	plt.figure(figsize=(12, 8))
+	plt.figure(figsize=(12, 6))
 	for col_type in ['history', 'forecast']:
 	    print(col_type)
 	    plt.plot(
@@ -99,7 +106,8 @@ def plot_next_forecast(data, yhat, n_ahead, hist_tail= 300, save=False):
 	plt.legend()
 	plt.grid()
 	if save:
-  		plt.savefig(settings.g_path+title+'.png')
+		plt.savefig(settings.g_path+title+'.png')
+	plt.grid()
 	plt.show()
 
 
@@ -116,7 +124,8 @@ def plot_model_metric(m_perf, metric, save=False):
 		plt.legend(['Train', 'Test'], loc='upper left')
 		plt.grid()
 		if save:
-  			plt.savefig(settings.g_path+title+'.png')
+			plt.savefig(settings.g_path+title+'.png')
+		plt.grid()
 		plt.show()
 	else:
 		print('Metric no calculated')

@@ -165,3 +165,4 @@ def data_split(array, percent):
 	limit = int(len(array) * percent / 100)
 	train, test = array[:limit,:], array[limit:,:]
 	return train, test, limit
+
