@@ -71,6 +71,7 @@ def plot_model_learn(data, yhat, save=False):
 	    plt.plot(
 	        fc.index,
 	        dtype,
+	        '.-',
 	        data=fc,
 	        label=dtype,
 	        alpha=0.8
@@ -78,6 +79,21 @@ def plot_model_learn(data, yhat, save=False):
 	plt.title(title)
 	plt.xlabel('Time')
 	plt.ylabel('ENERGY')
+	plt.legend()
+	plt.grid()
+	if save:
+		plt.savefig(settings.g_path+title+'.png')
+	plt.grid()
+	plt.show()
+
+def plot_scatter_learn(data, yhat, save=False):
+	fc = data.tail(len(yhat)).copy()
+	real = fc['ENERGY'].values
+	title= 'Scatter Model Results'
+	plt.scatter(yhat, real)
+	plt.plot(real, real, 'r--')
+	plt.xlabel('Forecast')
+	plt.ylabel('Real')
 	plt.legend()
 	plt.grid()
 	if save:

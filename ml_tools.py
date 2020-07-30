@@ -65,6 +65,12 @@ def model_out_tunep(yhat):
 	yhat[yhat < 0] = 0
 	return yhat
 
+def forecast_relation(data, yhat):
+	fc = data.tail(len(yhat)).copy()
+	fc['forecast'] = yhat
+	fc = fc[['ENERGY', 'forecast']]
+	return fc
+
 def forecast_dataframe(data, yhat, n_ahead, hist_tail=300):
 	fc = data.tail(hist_tail).copy() 
 	fc['type'] = 'history'
@@ -118,26 +124,26 @@ def predict_n_ahead(model, n_ahead, last_input):
 def save_experiment(multi_model=False):
     if not os.path.exists(settings.exp_path):
         os.mkdir(settings.exp_path)
-    time_name = str(time.time())
+    time_name = str(time.strftime('%Y%m%d%H%M%S', time.localtime(time.time())))
     dir_name = settings.exp_path + time_name
     try:
         os.mkdir(dir_name)
     except:
-        print("Directory Error")
+        print("Directory Experiment Error")
     
     #graficos
-    for pic in glob.glob(settings.g_path+"\\*.png"):
+    for pic in glob.glob(settings.g_path+"*.png"):
         shutil.copy2(pic, dir_name)
         
     #modelos
-    for pic in glob.glob(settings.m_path+"\\*.h5"):
+    for pic in glob.glob(settings.m_path+"*.h5"):
         shutil.copy2(pic, dir_name)
         
     #config
     if multi_model:
-        shutil.copy2(settings.this_path+'lstm_config.json', dir_name)
-    else:
         shutil.copy2(settings.this_path+'lstm_m_config.json', dir_name)
+    else:
+        shutil.copy2(settings.this_path+'lstm_config.json', dir_name)
     
 def clean_output_folders():
     if os.path.exists(settings.g_path):
@@ -148,4 +154,4 @@ def clean_output_folders():
         os.mkdir(settings.g_path)
         os.mkdir(settings.m_path)
     except:
-        print("Directory Error")
+        print("Directory Clean Error")

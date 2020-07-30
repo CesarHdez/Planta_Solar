@@ -7,6 +7,8 @@ from tensorflow.keras.models import Sequential
 from tensorflow.keras.models import load_model
 from tensorflow.keras.layers import Dense
 from tensorflow.keras.layers import LSTM
+from tensorflow.keras.layers import SimpleRNN
+from tensorflow.keras.layers import GRU
 from tensorflow.keras.layers import Dropout
 
 
@@ -19,7 +21,7 @@ import tensorflow as tf
 #from keras.models import load_model
 #from keras.layers import Dense
 #from keras.layers import LSTM
-
+import model_mk
 import settings
 import graphs
 import ml_tools
@@ -50,36 +52,38 @@ u_future_traget = conf["future_target"]
 x_train, y_train = ml_tools.univariate_data(data_u, 0, train_split, u_past_hist, u_future_traget)
 x_val, y_val = ml_tools.univariate_data(data_u, train_split, None, u_past_hist, u_future_traget)
 
-model = Sequential()
-if conf["lstm2"] == 0:
-    model.add(LSTM(conf["lstm1"], activation =conf["act_func"], input_shape=x_train.shape[-2:]))
-    model.add(Dropout(conf["dropout"]))
-elif conf["lstm3"] == 0:
-    model.add(LSTM(conf["lstm1"], return_sequences=True, activation =conf["act_func"], input_shape=x_train.shape[-2:]))
-    #kernel_regularizer=tf.keras.regularizers.l2(conf["l2_reg"])
-    model.add(Dropout(conf["dropout"]))
-    model.add(LSTM(conf["lstm2"], activation =conf["act_func"]))
-    model.add(Dropout(conf["dropout"]))
-else:
-    model.add(LSTM(conf["lstm1"], return_sequences=True, activation =conf["act_func"], input_shape=x_train.shape[-2:]))
-    model.add(Dropout(conf["dropout"]))
-    model.add(LSTM(conf["lstm2"], return_sequences=True, activation =conf["act_func"]))
-    model.add(Dropout(conf["dropout"]))
-    model.add(LSTM(conf["lstm3"], activation =conf["act_func"]))
-    model.add(Dropout(conf["dropout"]))
-model.add(Dense(1))
-print(model.summary())
-if conf["callbacks"] == 1:
-    print("using callbacks...") #tensorboard --logdir=logs/fit
-    log_dir = "logs\\fit\\" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
-    tensorboard = TensorBoard(log_dir=log_dir, histogram_freq=1)
-    early_s = EarlyStopping('loss', patience = conf["early_s"], mode = 'min')
-    lr_red = ReduceLROnPlateau('loss', patince= conf["early_s"], mode = 'min', verbose= conf["early_s"])
-    model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=conf["lr"]), loss=conf["loss"],metrics=[conf["metrics"]])
-    m_perf = model.fit(x_train, y_train, batch_size = conf["batch_size"], epochs= conf["epoch"], shuffle = False, validation_data = (x_val, y_val), callbacks=[early_s, lr_red, tensorboard])
-else:
-    model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=conf["lr"]), loss=conf["loss"],metrics=[conf["metrics"]])
-    m_perf = model.fit(x_train, y_train, batch_size = conf["batch_size"], epochs= conf["epoch"], shuffle = False, validation_data = (x_val, y_val))
+#model = Sequential()
+#if conf["lstm2"] == 0:
+#    model.add(LSTM(conf["lstm1"], activation =conf["act_func"], input_shape=x_train.shape[-2:]))
+#    model.add(Dropout(conf["dropout"]))
+#elif conf["lstm3"] == 0:
+#    model.add(LSTM(conf["lstm1"], return_sequences=True, activation =conf["act_func"], input_shape=x_train.shape[-2:]))
+#    #kernel_regularizer=tf.keras.regularizers.l2(conf["l2_reg"])
+#    model.add(Dropout(conf["dropout"]))
+#    model.add(LSTM(conf["lstm2"], activation =conf["act_func"]))
+#    model.add(Dropout(conf["dropout"]))
+#else:
+#    model.add(LSTM(conf["lstm1"], return_sequences=True, activation =conf["act_func"], input_shape=x_train.shape[-2:]))
+#    model.add(Dropout(conf["dropout"]))
+#    model.add(LSTM(conf["lstm2"], return_sequences=True, activation =conf["act_func"]))
+#    model.add(Dropout(conf["dropout"]))
+#    model.add(LSTM(conf["lstm3"], activation =conf["act_func"]))
+#    model.add(Dropout(conf["dropout"]))
+#model.add(Dense(1))
+#print(model.summary())
+#if conf["callbacks"] == 1:
+#    print("using callbacks...") #tensorboard --logdir=logs/fit
+#    log_dir = "logs\\fit\\" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+#    tensorboard = TensorBoard(log_dir=log_dir, histogram_freq=1)
+#    early_s = EarlyStopping('loss', patience = conf["early_s"], mode = 'min')
+#    lr_red = ReduceLROnPlateau('loss', patince= conf["early_s"], mode = 'min', verbose= conf["early_s"])
+#    model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=conf["lr"]), loss=conf["loss"],metrics=[conf["metrics"]])
+#    m_perf = model.fit(x_train, y_train, batch_size = conf["batch_size"], epochs= conf["epoch"], shuffle = False, validation_data = (x_val, y_val), callbacks=[early_s, lr_red, tensorboard])
+#else:
+#    model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=conf["lr"]), loss=conf["loss"],metrics=[conf["metrics"]])
+#    m_perf = model.fit(x_train, y_train, batch_size = conf["batch_size"], epochs= conf["epoch"], shuffle = False, validation_data = (x_val, y_val))
+
+model, m_perf = model_mk.model_maker(x_train, y_train, x_val, y_val, conf)
 
 model.save(settings.m_path+'lstm_u.h5')
 
