@@ -45,8 +45,7 @@ def multi_step_plot(history, true_future, prediction, STEP, save=False):
 	num_out = len(true_future)
 	title ='Multi Step Prediction'
 	plt.plot(num_in, np.array(history), label='History')
-	plt.plot(np.arange(num_out)/STEP, np.array(true_future), 'bo',
-	         label='True Future')
+	plt.plot(np.arange(num_out)/STEP, np.array(true_future), 'bo', label='True Future')
 	if prediction.any():
 	  plt.plot(np.arange(num_out)/STEP, np.array(prediction), 'ro',
 	           label='Predicted Future')
@@ -58,11 +57,11 @@ def multi_step_plot(history, true_future, prediction, STEP, save=False):
 	plt.grid()
 	plt.show()
 
-def plot_model_learn(data, yhat, save=False):
+def plot_model_learn(data, yhat, y_var='ENERGY', save=False):
 	fc = data.tail(len(yhat)).copy()
 	#fc.reset_index(inplace=True)
 	fc['forecast'] = yhat
-	fc = fc[['ENERGY', 'forecast']]
+	fc = fc[[y_var, 'forecast']]
 	fc.columns=['actual','forecast']
 	# Ploting the forecasts
 	title= 'Model Results'
@@ -78,7 +77,7 @@ def plot_model_learn(data, yhat, save=False):
 	    )
 	plt.title(title)
 	plt.xlabel('Time')
-	plt.ylabel('ENERGY')
+	plt.ylabel(y_var)
 	plt.legend()
 	plt.grid()
 	if save:
