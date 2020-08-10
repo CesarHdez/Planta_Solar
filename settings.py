@@ -14,7 +14,9 @@ conf_path_mpl = 'mpl_config.json'
 conf_path_m_mpl = 'mpl_m_config.json'
 exp_path = './experiments/'
 this_path = './'
-tb_path = "logs\\"
+tb_path = "logs\\fit\\"
+
+#tb_path = "logs\\"
 
 # g_path = '/content/solar_plant/graphics/'
 # ex_data = '/content/solar_plant/full_data.xlsx'
@@ -22,7 +24,7 @@ tb_path = "logs\\"
 #conf_u_path = '/content/solar_plant/u_config.json'
 #conf_m_path = '/content/solar_plant/m_config.json'
 # conf_path = '/content/solar_plant/lstm_config.json'
-# conf_m_path = '/content/solar_plant/lstm_m_config.json'
+# conf_ml_path = '/content/solar_plant/lstm_m_config.json'
 # conf_path_mpl = '/content/solar_plant/mpl_config.json'
 # conf_path_m_mpl = '/content/solar_plant/mpl_m_config.json'
 # exp_path = '/content/solar_plant/experiment/'

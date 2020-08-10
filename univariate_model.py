@@ -25,6 +25,7 @@ import model_mk
 import settings
 import graphs
 import ml_tools
+import tools
 
 ml_tools.clean_output_folders()
 
@@ -34,7 +35,8 @@ with open(settings.conf_u_path) as config_file:
 data = pd.read_excel(settings.ex_data, sheet_name='data')
 data['DateTime'] = pd.to_datetime(data['DateTime'])
 data.set_index('DateTime', inplace=True)
-data = data[:-140]
+#data = data[:-140]
+data = pd.concat([data, tools.data_generator(data, 5, 12, 6)])
 data = data.astype(float)
 #data = data['ENERGY']
 data[conf["y_var"]].astype(float)
@@ -77,36 +79,43 @@ yhat = ml_tools.model_out_tunep(yhat)
 
 graphs.plot_model_learn(data, yhat,conf["y_var"], True)
 
+graphs.plot_scatter_learn(data, yhat, save = True)
+
+relat = ml_tools.forecast_relation(data, yhat)
+print(relat[:30])
+cor = relat.astype(float).corr(method = 'pearson')
+print('Correlation: ', cor)
+
 ml_tools.save_experiment()
 
 
 ####################################
 ##Predecir los N siguientes valores
 
-u_past_hist= conf["past_hist"]
-u_future_traget = conf["future_target"]
-
-train_split= ml_tools.data_split(data_u, 100)
-
-x_train, y_train = ml_tools.univariate_data(data_u, 0, train_split, u_past_hist, u_future_traget)
-
-model, m_perf = model_mk.model_maker(conf, x_train, y_train)
-
-graphs.plot_model_metric(m_perf, 'loss', save = True)
-
-n_ahead = conf["n_ahead"]
-last_input= x_train[-1]
-
-yhat = ml_tools.predict_n_ahead(model, n_ahead, last_input)
-
-yhat = ml_tools.desnormalize(np.array(yhat), data_mean, data_std)
-
-yhat = ml_tools.model_out_tunep(yhat)
-
-graphs.plot_next_forecast(data, yhat, n_ahead, save=True)
-
-fc = ml_tools.forecast_dataframe(data, yhat, n_ahead)
-fc =fc.iloc[-49:]
-print(fc)
-
-ml_tools.save_experiment()
+#u_past_hist= conf["past_hist"]
+#u_future_traget = conf["future_target"]
+#
+#train_split= ml_tools.data_split(data_u, 100)
+#
+#x_train, y_train = ml_tools.univariate_data(data_u, 0, train_split, u_past_hist, u_future_traget)
+#
+#model, m_perf = model_mk.model_maker(conf, x_train, y_train)
+#
+#graphs.plot_model_metric(m_perf, 'loss', save = True)
+#
+#n_ahead = conf["n_ahead"]
+#last_input= x_train[-1]
+#
+#yhat = ml_tools.predict_n_ahead(model, n_ahead, last_input)
+#
+#yhat = ml_tools.desnormalize(np.array(yhat), data_mean, data_std)
+#
+#yhat = ml_tools.model_out_tunep(yhat)
+#
+#graphs.plot_next_forecast(data, yhat, n_ahead, save=True)
+#
+#fc = ml_tools.forecast_dataframe(data, yhat, n_ahead)
+#fc =fc.iloc[-49:]
+#print(fc)
+#
+#ml_tools.save_experiment()

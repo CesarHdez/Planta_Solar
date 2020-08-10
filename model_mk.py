@@ -46,7 +46,7 @@ def model_maker_Custom1(conf, x_train, y_train, x_val=[], y_val=[]):
 	    model.add(LSTM(conf["layer1"], return_sequences=True, activation =conf["act_func"], input_shape=x_train.shape[-2:]))
 	    #kernel_regularizer=tf.keras.regularizers.l2(conf["l2_reg"])
 	    model.add(Dropout(conf["dropout"]))
-	    model.add(LSTM(conf["layer2"], activation =conf["act_func"]))
+	    model.add(Dense(conf["layer2"], activation =conf["act_func"]))
 	    model.add(Dropout(conf["dropout"]))
 	else:
 	    model.add(LSTM(conf["layer1"], activation =conf["act_func"], input_shape=x_train.shape[-2:]))
@@ -62,7 +62,7 @@ def model_maker_Custom1(conf, x_train, y_train, x_val=[], y_val=[]):
 	print(model.summary())
 	if conf["callbacks"] == 1:
 	    print("using callbacks...") #tensorboard --logdir=logs/fit
-	    log_dir = "logs\\fit\\" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+	    log_dir = settings.tb_path + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
 	    tensorboard = TensorBoard(log_dir=log_dir, histogram_freq=1)
 	    early_s = EarlyStopping('loss', patience = conf["early_s"], mode = 'min')
 	    lr_red = ReduceLROnPlateau('loss', patince= conf["early_s"], mode = 'min', verbose= conf["early_s"])
@@ -106,7 +106,7 @@ def model_maker_LSTM(conf, x_train, y_train, x_val=[], y_val=[]):
 	print(model.summary())
 	if conf["callbacks"] == 1:
 	    print("using callbacks...") #tensorboard --logdir=logs/fit
-	    log_dir = "logs\\fit\\" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+	    log_dir = settings.tb_path + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
 	    tensorboard = TensorBoard(log_dir=log_dir, histogram_freq=1)
 	    early_s = EarlyStopping('loss', patience = conf["early_s"], mode = 'min')
 	    lr_red = ReduceLROnPlateau('loss', patince= conf["early_s"], mode = 'min', verbose= conf["early_s"])
@@ -147,7 +147,7 @@ def model_maker_GRU(conf, x_train, y_train, x_val=[], y_val=[]):
 	print(model.summary())
 	if conf["callbacks"] == 1:
 	    print("using callbacks...") #tensorboard --logdir=logs/fit
-	    log_dir = "logs\\fit\\" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+	    log_dir = settings.tb_path + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
 	    tensorboard = TensorBoard(log_dir=log_dir, histogram_freq=1)
 	    early_s = EarlyStopping('loss', patience = conf["early_s"], mode = 'min')
 	    lr_red = ReduceLROnPlateau('loss', patince= conf["early_s"], mode = 'min', verbose= conf["early_s"])
@@ -187,7 +187,7 @@ def model_maker_SimpleRNN(conf, x_train, y_train, x_val=[], y_val=[]):
 	print(model.summary())
 	if conf["callbacks"] == 1:
 	    print("using callbacks...") #tensorboard --logdir=logs/fit
-	    log_dir = "logs\\fit\\" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+	    log_dir = settings.tb_path + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
 	    tensorboard = TensorBoard(log_dir=log_dir, histogram_freq=1)
 	    early_s = EarlyStopping('loss', patience = conf["early_s"], mode = 'min')
 	    lr_red = ReduceLROnPlateau('loss', patince= conf["early_s"], mode = 'min', verbose= conf["early_s"])
@@ -227,7 +227,7 @@ def model_maker_MPL(conf, x_train, y_train, x_val=[], y_val=[]):
 	print(model.summary())
 	if conf["callbacks"] == 1:
 	    print("using callbacks...") #tensorboard --logdir=logs/fit
-	    log_dir = "logs\\fit\\" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+	    log_dir = settings.tb_path + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
 	    tensorboard = TensorBoard(log_dir=log_dir, histogram_freq=1)
 	    early_s = EarlyStopping('loss', patience = conf["early_s"], mode = 'min')
 	    lr_red = ReduceLROnPlateau('loss', patince= conf["early_s"], mode = 'min', verbose= conf["early_s"])

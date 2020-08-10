@@ -1,0 +1,21 @@
+{
+	"type" : "LSTM",
+	"y_var": "ENERGY",
+	"batch_size" : 40,
+	"epoch" : 10,
+	"layer1" : 60,
+	"layer2" : 36,
+	"layer3" : 0,
+	"act_func" : null,
+	"dropout" : 0.2,
+	"l2_reg" : 0.01,
+	"loss" : "mse",
+	"lr" : 0.001,
+	"early_s" : 7,
+	"callbacks" : 1,
+	"past_hist" : 72,
+	"future_target" : 0,
+	"split_p" : 90,
+	"metrics" : ["mse", "mae", "mape"],
+	"n_ahead" : 24
+}

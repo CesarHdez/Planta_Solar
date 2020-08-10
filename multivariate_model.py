@@ -24,7 +24,7 @@ import model_mk
 import settings
 import ml_tools
 import graphs
-import u_models
+#import u_models
 
 ml_tools.clean_output_folders()
 
@@ -114,25 +114,25 @@ print('Correlation: ', cor)
 ml_tools.save_experiment(True)
 
 ########################################################
-data_2_append = u_models.data_2_append[conf["features"]]
-data_f = data[conf["features"]]
-new_data_f = pd.concat([data_f, data_2_append])
-data_f = new_data_f.values
-data_f, data_mean_f, data_std_f = ml_tools.normaize(data_f)
-start_index = len(data_f)-len(data_2_append) - past_hist
-x_new = ml_tools.multivariate_data_2(data_f, start_index, len(data_f), past_hist, future_target, STEP)
-
-yhat = model.predict(x_new)
-
-yhat = ml_tools.desnormalize(yhat, data_mean_y, data_std_y)
-
-yhat = ml_tools.model_out_tunep(yhat)
-graphs.plot_model_learn(data, yhat, save = True)
-
-yhat=yhat.reshape(24,)
-graphs.plot_next_forecast(data, yhat, conf["n_ahead"], save=True)
-
-ml_tools.save_experiment(True)
+#data_2_append = u_models.data_2_append[conf["features"]]
+#data_f = data[conf["features"]]
+#new_data_f = pd.concat([data_f, data_2_append])
+#data_f = new_data_f.values
+#data_f, data_mean_f, data_std_f = ml_tools.normaize(data_f)
+#start_index = len(data_f)-len(data_2_append) - past_hist
+#x_new = ml_tools.multivariate_data_2(data_f, start_index, len(data_f), past_hist, future_target, STEP)
+#
+#yhat = model.predict(x_new)
+#
+#yhat = ml_tools.desnormalize(yhat, data_mean_y, data_std_y)
+#
+#yhat = ml_tools.model_out_tunep(yhat)
+#graphs.plot_model_learn(data, yhat, save = True)
+#
+#yhat=yhat.reshape(24,)
+#graphs.plot_next_forecast(data, yhat, conf["n_ahead"], save=True)
+#
+#ml_tools.save_experiment(True)
 
 ###################################################################
 

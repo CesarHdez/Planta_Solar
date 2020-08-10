@@ -4,6 +4,7 @@ import pandas as pd
 import datetime
 from os import scandir
 import settings
+import random
 
 def ls2(path):
     return [obj.name for obj in scandir(path) if obj.is_file()]
@@ -166,3 +167,88 @@ def data_split(array, percent):
 	train, test = array[:limit,:], array[limit:,:]
 	return train, test, limit
 
+#########################################################################
+#Data Generator
+#########################################################################
+
+def month_selector(data, month):
+    return data[data.index.month == month]
+
+def day_spliter(data_m):
+    last_day = list(data_m.index)[-1].day
+    list_of_days = []
+    for i in range(1,last_day+1):
+        list_of_days.append(data_m[data_m.index.day == i])
+    return list_of_days
+
+def month_groups_random(list_d, group):
+    res = len(list_d) % group
+    days_groups =[]
+    
+    for i in range(0, len(list_d), group):
+        df_aux = pd.DataFrame()
+        if i + (group - 1) > (len(list_d)-1):
+            for j in range(i, i + (res)):
+                if df_aux.empty:
+                    df_aux = list_d[j]
+                else:
+                    df_aux = pd.concat([df_aux, list_d[j]])
+            days_groups.append(df_aux)
+        else:
+            for j in range(i, i + group):
+                if df_aux.empty:
+                    df_aux = list_d[j]
+                else:
+                    df_aux = pd.concat([df_aux, list_d[j]])
+            days_groups.append(df_aux)
+    return days_groups
+
+
+def reconst_df(list_g):
+    df_aux = pd.DataFrame()
+    for i in range(len(list_g)):
+        if df_aux.empty:
+            df_aux = list_g[i]
+        else:
+            df_aux = pd.concat([df_aux, list_g[i]])
+    return df_aux
+
+#data_m = month_selector(data, 6)
+#list_d = day_spliter(data_m)
+#list_g = month_groups_random(list_d, 5)
+#random.shuffle(list_g)
+#m_df = reconst_df(list_g)
+
+
+def shufle_data(data, group, init_m, end_m):
+    list_df = []
+    if init_m > end_m:
+        for  i in range(init_m, end_m - 1, -1):
+            data_m = month_selector(data, i)
+            list_d = day_spliter(data_m)
+            list_g = month_groups_random(list_d, group)
+            random.shuffle(list_g)
+            m_df = reconst_df(list_g)
+            list_df.append(m_df)
+    else:
+        for  i in range(init_m, end_m + 1):
+            data_m = month_selector(data, i)
+            list_d = day_spliter(data_m)
+            list_g = month_groups_random(list_d, group)
+            random.shuffle(list_g)
+            m_df = reconst_df(list_g)
+            list_df.append(m_df)
+    shuffled_df = reconst_df(list_df)
+    return shuffled_df
+
+def data_generator(data, group, init_m, end_m):
+    sh_df = shufle_data(data, group, init_m, end_m)
+    date = list(data.index)[-1]
+    date_time_col = []
+    for i in range(len(sh_df)):
+        date_time_col.append(date + datetime.timedelta(hours= 1))
+        date = date_time_col[-1]
+    
+    sh_df["DateTime"]= date_time_col
+    sh_df.set_index("DateTime", inplace = True)
+    return sh_df
