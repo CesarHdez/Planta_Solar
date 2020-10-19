@@ -5,6 +5,10 @@ import os
 import time
 import shutil
 import glob
+import json
+import pickle
+
+from sklearn.metrics import r2_score
 
 import tools
 import settings
@@ -24,6 +28,20 @@ def univariate_data(dataset, start_index, end_index, history_size, target_size):
         data. append(np.reshape(dataset[indices], (history_size, 1)))
         labels.append(dataset[i+target_size])
     return np.array(data), np.array(labels)
+
+def univariate_data_2(dataset_x, dataset_y, start_index, end_index, history_size, target_size):
+    data = []
+    labels = []
+    start_index = start_index + history_size
+    if end_index is None or end_index > (len(dataset_x) - target_size):
+        end_index = len(dataset_x) - target_size
+    for i in range(start_index, end_index):
+        indices = range(i-history_size, i)
+        #Reshape data to (history, 1)
+        data. append(np.reshape(dataset_x[indices], (history_size, 1)))
+        labels.append(dataset_y[i+target_size])
+    return np.array(data), np.array(labels)
+
 
 def multivariate_data(dataset, target, start_index, end_index, history_size, target_size, step, single_step = False):
     data = []
@@ -59,7 +77,7 @@ def data_split(array, percent):
 	limit = int(len(array) * percent / 100)
 	return limit
 
-def normaize(data_u):
+def normalize(data_u):
 	data_mean = data_u.mean(axis=0)
 	data_std = data_u.std(axis=0)
 	data_u = (data_u - data_mean)/data_std
@@ -74,8 +92,10 @@ def desnormalize(data, mean, std):
     return des_norm
 
 def model_out_tunep(yhat):
-	yhat[yhat < 0] = 0
-	return yhat
+    yhat[yhat < 0] = 0
+    ref = float(yhat[yhat < 9500].max())
+    yhat[yhat > 9500] = ref
+    return yhat
 
 def forecast_relation(data, yhat):
 	fc = data.tail(len(yhat)).copy()
@@ -149,11 +169,23 @@ def predict_n_ahead(model, n_ahead, last_input):
     yhat = [y[0][0] for y in yhat]
     return yhat
 
+def det_coef(x,y):
+    return r2_score(x,y)
+
 #-----------------
 #With experiments
 #-----------------
 
-def save_experiment(multi_model=False):
+def load_perf(name):
+    with open(name, 'rb') as f:
+        return pickle.load(f)
+
+def save_perf(name, perf):
+    f = open(name,"wb")
+    pickle.dump(perf,f)
+    f.close()
+
+def save_experiment(conf, multi_model=False):
     if not os.path.exists(settings.exp_path):
         os.mkdir(settings.exp_path)
     time_name = str(time.strftime('%Y%m%d%H%M%S', time.localtime(time.time())))
@@ -171,11 +203,16 @@ def save_experiment(multi_model=False):
     for pic in glob.glob(settings.m_path+"*.h5"):
         shutil.copy2(pic, dir_name)
         
+    for pic in glob.glob(settings.m_path+"*.pkl"):
+        shutil.copy2(pic, dir_name)
     #config
     if multi_model:
         shutil.copy2(settings.this_path+'m_config.json', dir_name)
     else:
         shutil.copy2(settings.this_path+'u_config.json', dir_name)
+
+    #model code
+    shutil.copy2(settings.mk_path+conf["type"]+'.py', dir_name)
     
 def clean_output_folders():
     if os.path.exists(settings.g_path):
@@ -187,3 +224,24 @@ def clean_output_folders():
         os.mkdir(settings.m_path)
     except:
         print("Directory Clean Error")
+
+
+def pretty(d, indent=0):
+    for key, value in d.items():
+        print('\t' * indent + str(key))
+        if isinstance(value, dict):
+            pretty(value, indent+1)
+        else:
+            print('\t' * (indent+1) + str(value))
+
+
+def get_model_stats(m_perf, it = -1, val = False):
+    stats_d = dict()
+    metrics = ['mse', 'mae', 'mape', 'root_mean_squared_error']
+    if val :
+        for m in metrics:
+            stats_d['val_'+m] = m_perf['val_'+m][it]
+    else:
+        for m in metrics:
+            stats_d[m] = m_perf[m][it]
+    return stats_d

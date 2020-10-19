@@ -43,14 +43,14 @@ data = data.astype(float)
 data_u = data[conf["y_var"]].values
 
 
-data_u, data_mean, data_std = ml_tools.normaize(data_u)
+data_u, data_mean, data_std = ml_tools.normalize(data_u)
 
 ####################################
 # Predecir los N siguientes valores
 
 def get_vars_u_forecast(data ,conf):
     data_u = data[conf["y_var"]].values
-    data_u, data_mean, data_std = ml_tools.normaize(data_u)
+    data_u, data_mean, data_std = ml_tools.normalize(data_u)
     u_past_hist= conf["past_hist"]
     u_future_traget = conf["future_target"]
     

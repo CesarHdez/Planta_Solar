@@ -11,6 +11,7 @@ import settings
 #--------------------------------
 #LSTM
 #--------------------------------
+
 def create_time_steps(length):
   return list(range(-length, 0))
 
@@ -57,6 +58,32 @@ def multi_step_plot(history, true_future, prediction, STEP, save=False):
 	plt.grid()
 	plt.show()
 
+def plot_model_learn_days(relat, save=False):
+	fc = relat
+	plt.figure(figsize=(12, 6))
+	title= 'Pronóstico diario'
+	for dtype in ['ENERGY', 'forecast']:
+	    plt.plot(
+	        fc.index,
+	        dtype,
+	        '-',
+	        data=fc,
+	        label=dtype,
+	        alpha=0.8
+	    )
+	plt.title(title)
+	#plt.xlabel('Time')
+	plt.xlabel('Tiempo')
+	#plt.ylabel(y_var)
+	plt.ylabel('Energía Diaria Exportada (KW)')
+	plt.legend()
+	plt.grid()
+	if save:
+		plt.savefig(settings.g_path+title+'.png')
+	plt.grid()
+	plt.show()
+
+
 def plot_model_learn(data, yhat, y_var='ENERGY', save=False):
 	fc = data.tail(len(yhat)).copy()
 	#fc.reset_index(inplace=True)
@@ -64,20 +91,22 @@ def plot_model_learn(data, yhat, y_var='ENERGY', save=False):
 	fc = fc[[y_var, 'forecast']]
 	fc.columns=['actual','forecast']
 	# Ploting the forecasts
-	title= 'Model Results'
+	title= 'Model Rsults'
 	plt.figure(figsize=(12, 6))
 	for dtype in ['actual', 'forecast']:
 	    plt.plot(
 	        fc.index,
 	        dtype,
-	        '.-',
+	        '-',
 	        data=fc,
 	        label=dtype,
 	        alpha=0.8
 	    )
 	plt.title(title)
-	plt.xlabel('Time')
-	plt.ylabel(y_var)
+	#plt.xlabel('Time')
+	plt.xlabel('Tiempo')
+	#plt.ylabel(y_var)
+	plt.ylabel('Energía Exportada (KW)')
 	plt.legend()
 	plt.grid()
 	if save:
@@ -91,6 +120,23 @@ def plot_scatter_learn(data, yhat, save=False):
 	title= 'Scatter Model Results'
 	plt.scatter(yhat, real)
 	plt.plot(real, real, 'r--')
+	plt.title(title)
+	plt.xlabel('Forecast')
+	plt.ylabel('Real')
+	plt.legend()
+	plt.grid()
+	if save:
+		plt.savefig(settings.g_path+title+'.png')
+	plt.grid()
+	plt.show()
+
+def plot_scatter_learn_days(data, yhat, save=False):
+	fc = data.tail(len(yhat)).copy()
+	real = fc['ENERGY'].values
+	title= 'Scatter Model Results_Daily'
+	plt.scatter(yhat, real)
+	plt.plot(real, real, 'r--')
+	plt.title(title)
 	plt.xlabel('Forecast')
 	plt.ylabel('Real')
 	plt.legend()

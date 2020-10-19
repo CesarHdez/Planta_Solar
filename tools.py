@@ -6,9 +6,36 @@ from os import scandir
 import settings
 import random
 
+# Print iterations progress
+def printProgressBar (iteration, total, prefix = '', suffix = '', decimals = 1, length = 100, fill = '=', printEnd = "\r"):
+    """
+    Call in a loop to create terminal progress bar
+    @params:
+        iteration   - Required  : current iteration (Int)
+        total       - Required  : total iterations (Int)
+        prefix      - Optional  : prefix string (Str)
+        suffix      - Optional  : suffix string (Str)
+        decimals    - Optional  : positive number of decimals in percent complete (Int)
+        length      - Optional  : character length of bar (Int)
+        fill        - Optional  : bar fill character (Str)
+        printEnd    - Optional  : end character (e.g. "\r", "\r\n") (Str)
+    """
+    percent = ("{0:." + str(decimals) + "f}").format(100 * (iteration / float(total)))
+    filledLength = int(length * iteration // total)
+    if percent < 100:
+    	bar = fill * (filledLength-1)+'>'+ '-' * (length - filledLength)
+    else:
+    	bar = fill * (filledLength)+ '-' * (length - filledLength)
+    print(f'\r{prefix} [{bar}] file:{iteration}/{total}  {percent}% {suffix}', end = printEnd)
+    # Print New Line on Complete
+    if iteration == total: 
+        print()
+
 def ls2(path):
     return [obj.name for obj in scandir(path) if obj.is_file()]
 
+def ls2_dir(path):
+    return [obj.name for obj in scandir(path) if obj.is_dir()]
 
 def fix_excel(filename):
 	headers_list= settings.headers_list[1:]
@@ -244,6 +271,33 @@ def shufle_data(data, group, init_m, end_m):
 def data_generator(data, group, init_m, end_m):
     sh_df = shufle_data(data, group, init_m, end_m)
     date = list(data.index)[-1]
+    date_time_col = []
+    for i in range(len(sh_df)):
+        date_time_col.append(date + datetime.timedelta(hours= 1))
+        date = date_time_col[-1]
+    
+    sh_df["DateTime"]= date_time_col
+    sh_df.set_index("DateTime", inplace = True)
+    return sh_df
+
+def shufle_data_year(data, group):
+    #num_m =[6, 7, 8, 9, 10, 11, 12, 1, 2, 3, 4, 5]
+    num_m =[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+    list_df = []
+    for  i in num_m:
+        data_m = month_selector(data, i)
+        list_d = day_spliter(data_m)
+        list_g = month_groups_random(list_d, group)
+        random.shuffle(list_g)
+        m_df = reconst_df(list_g)
+        list_df.append(m_df)
+    shuffled_df = reconst_df(list_df)
+    return shuffled_df
+
+def data_generator_year(data, group, last_date):
+    sh_df = shufle_data_year(data, group)
+    #date = list(data.index)[-1]
+    date = last_date
     date_time_col = []
     for i in range(len(sh_df)):
         date_time_col.append(date + datetime.timedelta(hours= 1))

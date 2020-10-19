@@ -3,6 +3,8 @@ import pandas as pd
 import json
 import datetime
 
+from math import sqrt
+
 #from tensorflow.keras.models import Sequential
 #from tensorflow.keras.models import load_model
 #from tensorflow.keras.layers import Dense
@@ -35,8 +37,7 @@ with open(settings.conf_u_path) as config_file:
 data = pd.read_excel(settings.ex_data, sheet_name='data')
 data['DateTime'] = pd.to_datetime(data['DateTime'])
 data.set_index('DateTime', inplace=True)
-#data = data[:-140]
-data = pd.concat([data, tools.data_generator(data, 5, 12, 6)])
+#data = data[:-120]
 data = data.astype(float)
 #data = data['ENERGY']
 data[conf["y_var"]].astype(float)
@@ -46,7 +47,7 @@ data_u = data[conf["y_var"]].values
 
 
 
-data_u, data_mean, data_std = ml_tools.normaize(data_u)
+data_u, data_mean, data_std = ml_tools.normalize(data_u)
 
 train_split= ml_tools.data_split(data_u, conf["split_p"])
 
@@ -60,7 +61,13 @@ model, m_perf = model_mk.model_maker(conf, x_train, y_train, x_val, y_val)
 
 model.save(settings.m_path+conf['type']+'_u'+'.h5')
 
+ml_tools.save_perf(settings.m_path+conf['type']+'_u'+'.pkl', m_perf.history)
+
+#mpkl = ml_tools.load_perf(settings.m_path+conf['type']+'_u'+'.pkl')
+
 graphs.plot_model_metric(m_perf, 'loss', save = True)
+
+graphs.plot_model_metric(m_perf, 'root_mean_squared_error', save = True)
 
 for i in conf["metrics"]:
     graphs.plot_model_metric(m_perf, i, save = True)
@@ -77,16 +84,31 @@ yhat = ml_tools.desnormalize(yhat, data_mean, data_std)
 
 yhat = ml_tools.model_out_tunep(yhat)
 
-graphs.plot_model_learn(data, yhat,conf["y_var"], True)
+graphs.plot_model_learn(data, yhat, conf["y_var"], True)
+
+graphs.plot_model_learn(data[500:-137], yhat[500:-137], conf["y_var"], True)
 
 graphs.plot_scatter_learn(data, yhat, save = True)
 
 relat = ml_tools.forecast_relation(data, yhat)
+ml_tools.save_perf(settings.m_path+conf['type']+'_u'+'_fc_dt'+'.pkl', relat)
 print(relat[:30])
 cor = relat.astype(float).corr(method = 'pearson')
 print('Correlation: ', cor)
+rr = ml_tools.det_coef(relat["ENERGY"].values, relat["forecast"].values)
+print("R2 coef: ",rr)
 
-ml_tools.save_experiment()
+
+y_true = np.array(relat["ENERGY"])
+y_pred = np.array(relat["forecast"])
+MSE = np.square(np.subtract(y_true, y_pred)).mean()
+RMSE = sqrt(MSE)
+print("MSE: ", MSE)
+print("RMSE: ", RMSE)
+
+print(ml_tools.get_model_stats(m_perf.history))
+
+ml_tools.save_experiment(conf)
 
 
 ####################################
@@ -103,6 +125,63 @@ ml_tools.save_experiment()
 #
 #graphs.plot_model_metric(m_perf, 'loss', save = True)
 #
+#n_ahead = conf["n_ahead"]
+#last_input= x_train[-1]
+#
+#yhat = ml_tools.predict_n_ahead(model, n_ahead, last_input)
+#
+#yhat = ml_tools.desnormalize(np.array(yhat), data_mean, data_std)
+#
+#yhat = ml_tools.model_out_tunep(yhat)
+#
+#graphs.plot_next_forecast(data, yhat, n_ahead, save=True)
+#
+#fc = ml_tools.forecast_dataframe(data, yhat, n_ahead)
+#fc =fc.iloc[-49:]
+#print(fc)
+#
+#ml_tools.save_experiment()
+
+
+####################################
+#u_past_hist= conf["past_hist"]
+#u_future_traget = conf["future_target"]
+#
+#train_split= ml_tools.data_split(data_u, 100)
+#
+#x_train, y_train = ml_tools.univariate_data(data_u, 0, train_split, u_past_hist, u_future_traget)
+#
+#model, m_perf = model_mk.model_maker(conf, x_train, y_train)
+#
+#graphs.plot_model_metric(m_perf, 'loss', save = True)
+#
+#yhat= model.predict(x_train)
+#
+#yhat = ml_tools.desnormalize(yhat, data_mean, data_std)
+#
+#yhat = ml_tools.model_out_tunep(yhat)
+#
+#graphs.plot_model_learn(data, yhat, conf["y_var"], True)
+#
+#relat = ml_tools.forecast_relation(data, yhat)
+#print(relat[:30])
+#cor = relat.astype(float).corr(method = 'pearson')
+#print('Correlation: ', cor)
+#rr = ml_tools.det_coef(relat["ENERGY"].values, relat["forecast"].values)
+#print("R2 coef: ",rr)
+#
+#y_true = np.array(relat["ENERGY"])
+#y_pred = np.array(relat["forecast"])
+#MSE = np.square(np.subtract(y_true, y_pred)).mean()
+#RMSE = sqrt(MSE)
+#print("MSE: ", MSE)
+#print("RMSE: ", RMSE)
+#
+#print(ml_tools.get_model_stats(m_perf.history))
+
+
+
+
 #n_ahead = conf["n_ahead"]
 #last_input= x_train[-1]
 #

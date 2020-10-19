@@ -13,6 +13,10 @@ data = pd.read_excel(settings.ex_data, sheet_name='data')
 data['DateTime'] = pd.to_datetime(data['DateTime'])
 data.set_index('DateTime', inplace=True)
 
+data_new = pd.read_excel('full_data.xlsx', sheet_name='data')
+data_new['DateTime'] = pd.to_datetime(data_new['DateTime'])
+data_new.set_index('DateTime', inplace=True)
+
 #data = data[:-140]
 data = data.astype(float)
 
@@ -98,115 +102,43 @@ def data_generator(data, group, init_m, end_m):
     sh_df.set_index("DateTime", inplace = True)
     return sh_df
     
-#new_data = data_generator(data, 5, 12, 6)
 
-#data_p = tools.full_data_sun_hours(data, 'ENERGY')
-#par = 'ENERGY'
-#data_p = data_p[par]
-#
-#mask= 'day'
-#groups = dict()
-#
-#for p in data_p.index:
-#   if p.month not in groups:
-#       groups[p.month] = []
-#       groups[p.month].append(data_p.loc[p])
-#   else:
-#       groups[p.month].append(data_p.loc[p])
-#
-#labels, data_v = groups.keys(), groups.values()
-#labels=["Jun","Jul","Ago","Sep","Oct","Nov","Dic"]
-#plt.boxplot(data_v)
-#plt.xticks(range(1, len(labels) + 1), labels)
-#plt.show()
-#
-######################################################
-#
-#
-#par = 'ENERGY'
-#data_p = data[par]
-#mask= 'hour'
-#groups = dict()
-#
-#for p in data_p.index:
-#   if p.hour not in groups:
-#       groups[p.hour] = []
-#       groups[p.hour].append(data_p.loc[p])
-#   else:
-#       groups[p.hour].append(data_p.loc[p])
-#
-#labels, data_v = groups.keys(), groups.values()
-##labels=["Jun","Jul","Ago","Sep","Oct","Nov","Dic"]
-#plt.boxplot(data_v)
-#plt.xticks(range(1, len(labels) + 1), labels)
-#plt.show()
 
-########################################################
+def shufle_data_year(data, group):
+    num_m =[6, 7, 8, 9, 10, 11, 12, 1, 2, 3, 4, 5]
+    #num_m =[10, 11, 12]
+    list_df = []
+    for  i in num_m:
+        data_m = month_selector(data, i)
+        list_d = day_spliter(data_m)
+        list_g = month_groups_random(list_d, group)
+        random.shuffle(list_g)
+        m_df = reconst_df(list_g)
+        list_df.append(m_df)
+    shuffled_df = reconst_df(list_df)
+    return shuffled_df
+
+def data_generator_year(data, group, last_date):
+    sh_df = shufle_data_year(data, group)
+    #date = list(data.index)[-1]
+    date = last_date
+    date_time_col = []
+    for i in range(len(sh_df)):
+        date_time_col.append(date + datetime.timedelta(hours= 1))
+        date = date_time_col[-1]
     
-#data = tools.full_data_sun_hours(data, 'ENERGY')
-#
-#X = []
-#for i in data.index:
-#    X.append(i.hour)
-#    
-#Y = []
-#for i in data.index:
-#    Y.append(i.day)
-#    
-#Z = []
-#for i in data["ENERGY"].values:
-#    Z.append(i)
-#
-#
-##X = np.array(X)
-##Y = np.array(Y)
-##Z = np.array(Z)
-##
-##fig = plt.figure()
-##ax = plt.axes(projection='3d')
-##ax.plot_trisurf(X, Y, Z, rstride=1, cstride=1,
-##                cmap='viridis', edgecolor='none')
-##ax.set_title('surface');
-#
-#from mpl_toolkits.mplot3d import Axes3D
-#import matplotlib.pyplot as plt
-#import pandas as pd
-#import seaborn as sns
-# 
-## Get the data (csv file is hosted on the web)
-##url = 'https://python-graph-gallery.com/wp-content/uploads/volcano.csv'
-##data = pd.read_csv(url)
-# 
-## Transform it to a long format
-##df=data.unstack().reset_index()
-#df = pd.DataFrame()
-##df.columns=["X","Y","Z"]
-#df["X"]=Y
-#df["Y"]=X
-#df["Z"]=Z
-## And transform the old column name in something numeric
-##df['X']=pd.Categorical(df['X'])
-##df['X']=df['X'].cat.codes
-# 
-## Make the plot
-#fig = plt.figure(figsize=(10,7))
-#ax = fig.gca(projection='3d')
-#ax.plot_trisurf(df['Y'], df['X'], df['Z'], cmap=plt.cm.viridis, linewidth=0.2)
-#plt.show()
-# 
-## to Add a color bar which maps values to colors.
-#surf=ax.plot_trisurf(df['Y'], df['X'], df['Z'], cmap=plt.cm.viridis, linewidth=0.2)
-#fig.colorbar( surf, shrink=0.5, aspect=15)
-#plt.show()
-# 
-## Rotate it
-#ax.view_init(30, 45)
-#plt.show()
-# 
-## Other palette
-#ax.plot_trisurf(df['Y'], df['X'], df['Z'], cmap=plt.cm.jet, linewidth=0.3)
-#plt.show()
-#######################################################################
+    sh_df["DateTime"]= date_time_col
+    sh_df.set_index("DateTime", inplace = True)
+    return sh_df
+
+
+data_new = data_new[:'05-31-2020']
+##print(len (data_c))
+data_new_m = pd.concat([data_new, tools.data_generator_year(data_new, 5, list(data_new.index)[-1])])
+
+#data = pd.concat([data, tools.data_generator(data, 5, 10, 12)])
+#data = pd.concat([data, tools.data_generator(data, 5, 1, 5)])
+#data_m = pd.concat([data, tools.data_generator_year(data, 5, list(data.index)[-1])])
 
 
 #data = pd.concat([data, tools.data_generator(data, 5, 12, 6)])
@@ -215,9 +147,21 @@ def data_generator(data, group, init_m, end_m):
 #data = pd.concat([data, tools.data_generator(data, 5, 7, 12)])
 
 data = pd.concat([data, tools.data_generator(data, 5, 12, 8)])
-data_m = pd.concat([data, tools.data_generator(data, 5, 12, 8)])
+data_c = data[:-24]
+#print(len (data_c))
+data_m = pd.concat([data_c, tools.data_generator_year(data_c, 5, list(data_c.index)[-1])])
+#print(len(data_m), list(data_c.index)[-1])
+#data_m = pd.concat([data_m, tools.data_generator_year(data_c, 5, list(data_m.index)[-1])])
+##print(len (data_m), list(data_m.index)[-1])
+#data_m = pd.concat([data_m, tools.data_generator_year(data_c, 5, list(data_m.index)[-1])])
+##print(len (data_m), list(data_m.index)[-1])
 
-dataset = data
+data_m.to_excel('full_data_gen.xlsx', sheet_name='data')
+
+#enero= data_m.loc['01-01-2020':'01-31-2020']
+#enero.to_excel('enero.xlsx', sheet_name='data')
+
+dataset = data_m
 
 values = dataset.values
 # specify columns to plot
