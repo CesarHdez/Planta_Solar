@@ -22,7 +22,7 @@ def printProgressBar (iteration, total, prefix = '', suffix = '', decimals = 1, 
     """
     percent = ("{0:." + str(decimals) + "f}").format(100 * (iteration / float(total)))
     filledLength = int(length * iteration // total)
-    if percent < 100:
+    if iteration < total:
     	bar = fill * (filledLength-1)+'>'+ '-' * (length - filledLength)
     else:
     	bar = fill * (filledLength)+ '-' * (length - filledLength)
@@ -197,9 +197,13 @@ def data_split(array, percent):
 #########################################################################
 #Data Generator
 #########################################################################
-
 def month_selector(data, month):
     return data[data.index.month == month]
+
+def last_month_selector(data, month):
+    a = data[data.index.month == month]
+    b = a[a.index.year == a.index[-1].year]
+    return b
 
 def day_spliter(data_m):
     last_day = list(data_m.index)[-1].day
@@ -285,7 +289,7 @@ def shufle_data_year(data, group):
     num_m =[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
     list_df = []
     for  i in num_m:
-        data_m = month_selector(data, i)
+        data_m = last_month_selector(data, i)
         list_d = day_spliter(data_m)
         list_g = month_groups_random(list_d, group)
         random.shuffle(list_g)

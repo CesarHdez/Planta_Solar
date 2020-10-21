@@ -13,12 +13,84 @@ data = pd.read_excel(settings.ex_data, sheet_name='data')
 data['DateTime'] = pd.to_datetime(data['DateTime'])
 data.set_index('DateTime', inplace=True)
 
-data_new = pd.read_excel('full_data.xlsx', sheet_name='data')
-data_new['DateTime'] = pd.to_datetime(data_new['DateTime'])
-data_new.set_index('DateTime', inplace=True)
-
 #data = data[:-140]
 data = data.astype(float)
+
+groups = 2
+#para completar el año
+data = pd.concat([data, tools.data_generator(data, groups, 10, 12)])
+
+#para recortar hasta un año
+#data = data[:'05-31-2020']
+####se debe cambiar el listado de meses en dependencia de las selecciones anteriores####
+####en el archivo tools funcion shufle_data_year####
+data = pd.concat([data, tools.data_generator_year(data, groups, list(data.index)[-1])])
+
+
+data.to_excel('full_data_gen.xlsx', sheet_name='data')
+
+dataset = data
+#dataset = data_old
+
+values = dataset.values
+# specify columns to plot
+groups = [0, 1, 2, 3, 4]
+i = 1
+# plot each column
+plt.figure()
+for group in groups:
+	plt.subplot(len(groups), 1, i)
+	plt.plot(values[:, group])
+	plt.title(dataset.columns[group], y=0.5, loc='right')
+	i += 1
+plt.show()
+
+
+#-----------------------------------------------------------------------------------
+##data = pd.concat([data, tools.data_generator_year(data, 5, list(data.index)[-1])])
+#
+##data = pd.concat([data, tools.data_generator(data, 5, 10, 12)])
+##data = pd.concat([data, tools.data_generator(data, 5, 1, 5)])
+##data_m = pd.concat([data, tools.data_generator_year(data, 5, list(data.index)[-1])])
+#
+#
+##data = pd.concat([data, tools.data_generator(data, 5, 12, 6)])
+##data = pd.concat([data, tools.data_generator(data, 5, 7, 12)])
+##data = pd.concat([data, tools.data_generator(data, 5, 1, 5)])
+##data = pd.concat([data, tools.data_generator(data, 5, 7, 12)])
+#
+#data_old = pd.concat([data_old, tools.data_generator(data_old, 5, 12, 8)])
+#data_c = data_old[:-24]
+##print(len (data_c))
+#data_m = pd.concat([data_c, tools.data_generator_year(data_c, 5, list(data_c.index)[-1])])
+##print(len(data_m), list(data_c.index)[-1])
+#data_m = pd.concat([data_m, tools.data_generator_year(data_c, 5, list(data_m.index)[-1])])
+###print(len (data_m), list(data_m.index)[-1])
+##data_m = pd.concat([data_m, tools.data_generator_year(data_c, 5, list(data_m.index)[-1])])
+###print(len (data_m), list(data_m.index)[-1])
+#
+#data_m.to_excel('full_data_gen.xlsx', sheet_name='data')
+#
+##enero= data_m.loc['01-01-2020':'01-31-2020']
+##enero.to_excel('enero.xlsx', sheet_name='data')
+#
+#dataset = data
+##dataset = data_old
+#
+#values = dataset.values
+## specify columns to plot
+#groups = [0, 1, 2, 3, 4]
+#i = 1
+## plot each column
+#plt.figure()
+#for group in groups:
+#	plt.subplot(len(groups), 1, i)
+#	plt.plot(values[:, group])
+#	plt.title(dataset.columns[group], y=0.5, loc='right')
+#	i += 1
+#plt.show()
+
+#-----------------------------------------------------------
 
 def month_selector(data, month):
     return data[data.index.month == month]
@@ -130,54 +202,6 @@ def data_generator_year(data, group, last_date):
     sh_df["DateTime"]= date_time_col
     sh_df.set_index("DateTime", inplace = True)
     return sh_df
-
-
-data_new = data_new[:'05-31-2020']
-##print(len (data_c))
-data_new_m = pd.concat([data_new, tools.data_generator_year(data_new, 5, list(data_new.index)[-1])])
-
-#data = pd.concat([data, tools.data_generator(data, 5, 10, 12)])
-#data = pd.concat([data, tools.data_generator(data, 5, 1, 5)])
-#data_m = pd.concat([data, tools.data_generator_year(data, 5, list(data.index)[-1])])
-
-
-#data = pd.concat([data, tools.data_generator(data, 5, 12, 6)])
-#data = pd.concat([data, tools.data_generator(data, 5, 7, 12)])
-#data = pd.concat([data, tools.data_generator(data, 5, 1, 5)])
-#data = pd.concat([data, tools.data_generator(data, 5, 7, 12)])
-
-data = pd.concat([data, tools.data_generator(data, 5, 12, 8)])
-data_c = data[:-24]
-#print(len (data_c))
-data_m = pd.concat([data_c, tools.data_generator_year(data_c, 5, list(data_c.index)[-1])])
-#print(len(data_m), list(data_c.index)[-1])
-#data_m = pd.concat([data_m, tools.data_generator_year(data_c, 5, list(data_m.index)[-1])])
-##print(len (data_m), list(data_m.index)[-1])
-#data_m = pd.concat([data_m, tools.data_generator_year(data_c, 5, list(data_m.index)[-1])])
-##print(len (data_m), list(data_m.index)[-1])
-
-data_m.to_excel('full_data_gen.xlsx', sheet_name='data')
-
-#enero= data_m.loc['01-01-2020':'01-31-2020']
-#enero.to_excel('enero.xlsx', sheet_name='data')
-
-dataset = data_m
-
-values = dataset.values
-# specify columns to plot
-groups = [0, 1, 2, 3, 4]
-i = 1
-# plot each column
-plt.figure()
-for group in groups:
-	plt.subplot(len(groups), 1, i)
-	plt.plot(values[:, group])
-	plt.title(dataset.columns[group], y=0.5, loc='right')
-	i += 1
-plt.show()
-
-
-
 
 
 

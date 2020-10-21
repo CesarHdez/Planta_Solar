@@ -44,12 +44,12 @@ full_data = data_prep()
 
 #--------------------------------
 #adding jan
-#to_add = pd.read_excel('enero.xlsx', sheet_name='data')
-#to_add['DateTime'] = pd.to_datetime(to_add['DateTime'])
-#to_add.set_index('DateTime', inplace=True)
-#
-#full_data = pd.concat([full_data, to_add])
-#full_data = full_data.sort_index(axis=0)
+to_add = pd.read_excel('enero.xlsx', sheet_name='data')
+to_add['DateTime'] = pd.to_datetime(to_add['DateTime'])
+to_add.set_index('DateTime', inplace=True)
+
+full_data = pd.concat([full_data, to_add])
+full_data = full_data.sort_index(axis=0)
 #-------------------------------
 
 full_data.to_excel('full_data.xlsx', sheet_name='data')

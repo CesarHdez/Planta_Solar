@@ -10,12 +10,17 @@ import matplotlib.pyplot as plt
 #model.summary()
 
 
-model_type = '_u'
+#settings
+save = True
+save_path = './saved/'
 
-#dirs_name = tools.ls2_dir(settings.analize_path)
+model_type = '_m'
+
+
 
 list_perf = []
 list_relat = []
+
 
 
 with os.scandir(settings.analize_path) as folders:
@@ -32,7 +37,7 @@ for folder in folders:
     list_relat.append(m_relat)
 
 #---------------------------------------------------------------
-models_name = ["LSTM", "GRU"]
+models_name = ["Modelo Propuesto", "Modelo Tendencia"]
 models_df= pd.DataFrame()
 for i in range(len(list_relat)):
     if i == 0:
@@ -46,22 +51,105 @@ for i in range(len(list_relat)):
 #---------------------------------------------------------------
 models_df= models_df[500:-137]
 names_list = list(models_df.columns)
-fig,eje= plt.subplots()
+fig,eje= plt.subplots(figsize=(10,5))
+title = 'Comparación de pronósticos de los Modelos'
 for i in names_list:
     eje.plot(models_df[i],label=i)
-    eje.set_ylim(-100,11000)
+    eje.set_ylim(-150,11000)
     eje.legend()
     eje.set_ylabel('Producción (MWh)')
-    eje.set_title('Tendencias en la Producción de electricidad')
+    eje.set_title(title)
+if save:
+    fig.savefig('./to_analyze/'+title+'.png')
+#---------------------------------------------------------------
+r_list=[]
+rr_list=[]
+for relat in list_relat:
+    cor = relat.astype(float).corr(method = 'pearson').iloc[1][0]
+    r_list.append(cor)
+    rr = ml_tools.det_coef(relat["ENERGY"].values, relat["forecast"].values)
+    rr_list.append(rr)
 
-#for folder in dirs_name:
-#    print(folder)
+#y_true = np.array(relat["ENERGY"])
+#y_pred = np.array(relat["forecast"])
+#MSE = np.square(np.subtract(y_true, y_pred)).mean()
+#RMSE = sqrt(MSE)
+#print("MSE: ", MSE)
+#print("RMSE: ", RMSE)
+
+#print(ml_tools.get_model_stats(m_perf.history))
 
 
-#m_perf = ml_tools.load_perf('Custom2_m.pkl')
-#stats = ml_tools.get_model_stats(m_perf)
-#print(stats)
+#---------------------------------------------------------------
+metric = 'loss'
+fig,eje= plt.subplots(figsize=(10.3,5))
+legend_list=[]
+for i in range(len(list_perf)):
+    m_perf = list_perf[i] 
+    if metric in m_perf:
+        eje.plot(m_perf[metric])
+        val_m = 'val_'+metric
+        if val_m in m_perf:
+            eje.plot(m_perf[val_m])
+        title = 'Comparación de Modelos '+ metric
+        title = 'Pérdida en el desempeño del entrenamiento de los Modelos'
+        eje.set_ylabel('Pérdida')
+        #eje.set_ylabel(metric)
+        eje.set_xlabel('época')
+        eje.set_title(title)
+        eje.set_ylim(-0.001,0.12)
+#        legend_list.append('Model '+ str(i) +' Train')
+#        legend_list.append('Model '+ str(i) +' Test')
+        legend_list.append(models_name[i] +' Entrenamiento')
+        legend_list.append(models_name[i] +' Prueba')
+        eje.legend(legend_list, loc='upper right')
+        eje.grid()
+#        if save:
+#            eje.savefig(settings.g_path+title+'.png')
+#    	eje.grid()
+#    	eje.show()
+    else:
+    	print('Metric no calculated')
+if save:
+    fig.savefig('./to_analyze/'+title+'.png')
+#-----------------------------------------------------------------
+#metrics = ["mse", "mae", "mape"]
+#metric_list=[]
+#for i in range(len(list_perf)):
+#    m_perf = list_perf[i]
+#    temp = []
+#    for k in metrics:     
+#        temp.append(m_perf[k][-1])
+#    metric_list.append(temp)
     
+metrics = ["mse", "mae", "mape", "root_mean_squared_error"]
+metric_list=[]
+for k in metrics:
+    temp = []
+    for m_perf in list_perf:
+        temp.append(m_perf[k][-1])
+    metric_list.append(temp)
+
+#-----------------------------------------------------------------
+models_stats= pd.DataFrame()
+columns_l=['name','corr', 'det'] + metrics + ['exprmt']
+models_stats['name']=models_name
+models_stats['corr']=r_list
+models_stats['det']=rr_list
+models_stats['exprmt']=folders
+for i in range(len(metrics)):
+    if metrics[i] == "root_mean_squared_error":
+        models_stats['rmse']=metric_list[i]
+    else:
+        models_stats[metrics[i]]=metric_list[i]
+models_stats = models_stats.set_index('exprmt')
+print(models_stats)
+if save:
+    models_stats.to_excel('./to_analyze/models_stats.xlsx', sheet_name='stats')
     
-#with os.scandir(settings.analize_path +'/'+folder) as ficheros:
-#        ficheros = [fichero.name for fichero in ficheros if fichero.is_file() and fichero.name.endswith(model_type +'pkl')]
+
+
+
+
+
+

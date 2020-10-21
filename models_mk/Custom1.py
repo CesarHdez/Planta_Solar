@@ -67,7 +67,7 @@ def get_optimizer(conf):
 
 
 def model_maker_Custom1(conf, x_train, y_train, x_val=[], y_val=[]):
-	print("Custom1 Modeleee")
+	print("Custom1 Model")
 	print("=============")
 	model = Sequential()
 	m_perf = {}
