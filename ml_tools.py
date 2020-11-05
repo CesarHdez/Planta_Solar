@@ -43,22 +43,36 @@ def univariate_data_2(dataset_x, dataset_y, start_index, end_index, history_size
     return np.array(data), np.array(labels)
 
 
-def multivariate_data(dataset, target, start_index, end_index, history_size, target_size, step, single_step = False):
+def multivariate_data(dataset, target, start_index, end_index, history_size, target_size, step, single_step = False, future= False):
     data = []
     labels = []
     
-    start_index = start_index + history_size
-    if end_index is None or end_index > (len(dataset) - target_size):
-        end_index = len(dataset) - target_size
-        
-    for i in range(start_index, end_index):
-        indices = range(i-history_size, i, step)
-        data.append(dataset[indices])
-        
-        if single_step:
-            labels.append(target[i+target_size])
-        else:
-            labels.append(target[i:i+target_size])
+    if future:
+        start_index = start_index
+        if end_index is None or end_index > (len(dataset) - target_size - history_size):
+            end_index = len(dataset) - target_size - history_size
+            
+        for i in range(start_index, end_index):
+            indices = range(i, i+history_size, step)
+            data.append(dataset[indices])
+            
+            if single_step:
+                labels.append(target[i+target_size])
+            else:
+                labels.append(target[i:i+target_size])
+    else:
+        start_index = start_index + history_size
+        if end_index is None or end_index > (len(dataset) - target_size):
+            end_index = len(dataset) - target_size
+            
+        for i in range(start_index, end_index):
+            indices = range(i-history_size, i, step)
+            data.append(dataset[indices])
+            
+            if single_step:
+                labels.append(target[i+target_size])
+            else:
+                labels.append(target[i:i+target_size])
     return np.array(data), np.array(labels)
 
 def multivariate_data_2(dataset, start_index, end_index, history_size, target_size, step, single_step = False):
@@ -77,6 +91,13 @@ def data_split(array, percent):
 	limit = int(len(array) * percent / 100)
 	return limit
 
+def normalize_2(data_u):
+    data_max = data_u.max(axis=0)
+    data_min = data_u.min(axis=0)
+    data_dif = data_max - data_min
+    data_u = (data_u - data_min)/data_dif
+    return data_u, data_min, data_dif
+
 def normalize(data_u):
 	data_mean = data_u.mean(axis=0)
 	data_std = data_u.std(axis=0)
@@ -89,6 +110,10 @@ def normalize(data_u):
 
 def desnormalize(data, mean, std):
     des_norm = (data*std)+mean
+    return des_norm
+
+def desnormalize_2(data, data_min, data_dif):
+    des_norm = (data*data_dif) + data_min
     return des_norm
 
 def model_out_tunep(yhat):

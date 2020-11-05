@@ -37,7 +37,7 @@ for folder in folders:
     list_relat.append(m_relat)
 
 #---------------------------------------------------------------
-models_name = ["Modelo Propuesto", "Modelo Tendencia"]
+models_name = ["Modelo 1", "Modelo 2"]
 models_df= pd.DataFrame()
 for i in range(len(list_relat)):
     if i == 0:
@@ -49,7 +49,7 @@ for i in range(len(list_relat)):
         models_df[models_name[i]]= temp_list
         #models_df['Model_'+str(i)]= temp_list
 #---------------------------------------------------------------
-models_df= models_df[500:-137]
+models_df= models_df[500:700]
 names_list = list(models_df.columns)
 fig,eje= plt.subplots(figsize=(10,5))
 title = 'Comparación de pronósticos de los Modelos'

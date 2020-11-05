@@ -1,5 +1,6 @@
 import matplotlib as mpl
 import matplotlib.pyplot as plt
+import seaborn as sns
 import pandas as pd
 import numpy as np
 import datetime
@@ -145,6 +146,13 @@ def plot_scatter_learn_days(data, yhat, save=False):
 		plt.savefig(settings.g_path+title+'.png')
 	plt.grid()
 	plt.show()
+
+def plot_scatter_learn_days_2(data, save=False):
+	data = data.rename(columns={'ENERGY': 'real'})
+	sns.set(rc={'figure.figsize':(15,15)})
+	sns_plot = sns.jointplot("forecast", "real", data=data, kind='reg',)
+	if save:
+		sns_plot.savefig(settings.g_path+title+'.png')
 
 def plot_next_forecast(data, yhat, n_ahead, hist_tail= 300, save=False):
 	fc = ml_tools.forecast_dataframe(data, yhat, n_ahead, hist_tail)

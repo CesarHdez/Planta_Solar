@@ -21,7 +21,7 @@ import datetime
 #from tensorflow.keras.callbacks import TensorBoard
 
 
-
+import matplotlib.pyplot as plt
 import model_mk
 import settings
 import ml_tools
@@ -43,6 +43,11 @@ data = data.astype(float)
 
 data_f = data[conf["features"]]
 data_y = data[conf["y_var"]]
+
+
+#e = np.array(data_f['IRRAD4'].values)
+#fig, ax = plt.subplots()  # initiate an empty figure and axis matplotlib object
+#ax.hist(e, 10)
 
 data_f = data_f.values
 data_y = data_y.values
@@ -128,6 +133,7 @@ print("Análisis diario")
 daily = relat.resample('D').sum()[1:-1]
 graphs.plot_model_learn_days(daily, True)
 graphs.plot_scatter_learn_days(daily, daily['forecast'].values, save = True)
+graphs.plot_scatter_learn_days_2(daily)
 ml_tools.save_perf(settings.m_path+conf['type']+'_m'+'_fc_dt_d'+'.pkl', daily)
 print(daily[:30])
 cor_d = daily.astype(float).corr(method = 'pearson')
