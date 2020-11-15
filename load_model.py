@@ -5,6 +5,8 @@ import tools
 import os
 import pandas as pd
 import matplotlib.pyplot as plt
+import json
+
 
 #model = load_model('Custom1_u.h5')
 #model.summary()
@@ -14,12 +16,13 @@ import matplotlib.pyplot as plt
 save = True
 save_path = './saved/'
 
-model_type = '_m'
+model_type = '_u'
 
 
 
 list_perf = []
 list_relat = []
+list_config = []
 
 
 
@@ -35,17 +38,33 @@ for folder in folders:
         files = [files.name for files in files if files.is_file() and files.name.endswith(model_type +'_fc_dt.pkl')]
     m_relat = ml_tools.load_perf(settings.analize_path +'/' + folder +'/' +files[0])
     list_relat.append(m_relat)
+    with os.scandir(settings.analize_path +'/' +folder ) as files:
+        files = [files.name for files in files if files.is_file() and files.name.endswith('config.json')]
+        with open(settings.analize_path +'/' + folder +'/' +files[0]) as config_file:
+            conf = json.load(config_file)
+    list_config.append(conf)
 
 #---------------------------------------------------------------
-models_name = ["Modelo 1", "Modelo 2"]
+#models_name = ["Modelo 1", "Modelo 2"]
+models_name = []
+for i in list_config:
+    models_name.append(str(i["optimizer"]))
+
 models_df= pd.DataFrame()
 for i in range(len(list_relat)):
+    temp_list = []
     if i == 0:
         models_df = list_relat[i]
         #models_df = models_df.rename(columns={'ENERGY': 'Real','forecast': 'Model_'+str(i)})
         models_df = models_df.rename(columns={'ENERGY': 'Real','forecast': models_name[i]})
     else:
         temp_list = list(list_relat[i]['forecast'].tolist())
+        if len(temp_list) > len(models_df):
+            temp_list = temp_list[:len(models_df)]
+        elif len(temp_list) < len(models_df):
+            models_df = models_df[:len(temp_list)]
+        else:
+            pass
         models_df[models_name[i]]= temp_list
         #models_df['Model_'+str(i)]= temp_list
 #---------------------------------------------------------------
@@ -97,7 +116,7 @@ for i in range(len(list_perf)):
         #eje.set_ylabel(metric)
         eje.set_xlabel('época')
         eje.set_title(title)
-        eje.set_ylim(-0.001,0.12)
+        eje.set_ylim(-0.001,0.2)
 #        legend_list.append('Model '+ str(i) +' Train')
 #        legend_list.append('Model '+ str(i) +' Test')
         legend_list.append(models_name[i] +' Entrenamiento')

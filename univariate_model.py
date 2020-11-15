@@ -106,9 +106,30 @@ RMSE = sqrt(MSE)
 print("MSE: ", MSE)
 print("RMSE: ", RMSE)
 
-print(ml_tools.get_model_stats(m_perf.history))
+#print(ml_tools.get_model_stats(m_perf.history))
+#----------------------------------------------------
+metrics = ["mse", "mae", "mape", "root_mean_squared_error"]
+metric_list=[]
+for k in metrics: 
+    metric_list.append(m_perf.history[k][-1])
+
+#columns_l=['name','corr', 'det'] + metrics
+#models_stats= pd.DataFrame(columns = columns_l)
+models_stats= pd.DataFrame()
+models_stats['name']=[conf["optimizer"]]
+models_stats['corr']=[cor.iloc[0][1]]
+models_stats['det']=[rr]
+
+for i in range(len(metrics)):
+    if metrics[i] == "root_mean_squared_error":
+        models_stats['rmse']=metric_list[i]
+    else:
+        models_stats[metrics[i]]=metric_list[i]
+models_stats.to_excel(settings.m_path+conf['type']+'models_stats.xlsx', sheet_name='stats')
+print(models_stats)  
 
 ml_tools.save_experiment(conf)
+#---------------------------------------
 
 
 ####################################

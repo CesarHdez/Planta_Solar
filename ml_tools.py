@@ -230,6 +230,9 @@ def save_experiment(conf, multi_model=False):
         
     for pic in glob.glob(settings.m_path+"*.pkl"):
         shutil.copy2(pic, dir_name)
+        
+    for pic in glob.glob(settings.m_path+"*.xlsx"):
+        shutil.copy2(pic, dir_name)
     #config
     if multi_model:
         shutil.copy2(settings.this_path+'m_config.json', dir_name)
