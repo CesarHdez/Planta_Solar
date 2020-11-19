@@ -8,7 +8,6 @@ import tools
 import ml_tools
 import settings
 
-
 #--------------------------------
 #LSTM
 #--------------------------------
@@ -26,6 +25,7 @@ def show_plot(plot_data, delta, title, save=False):
 	  future = 0
 
 	plt.title(title)
+	plt.figure(figsize=(12, 6))
 	for i, x in enumerate(plot_data):
 	  if i:
 	    plt.plot(future, plot_data[i], marker[i], markersize=10,
@@ -119,6 +119,7 @@ def plot_scatter_learn(data, yhat, save=False):
 	fc = data.tail(len(yhat)).copy()
 	real = fc['ENERGY'].values
 	title= 'Scatter Model Results'
+	plt.figure(figsize=(12, 6))
 	plt.scatter(yhat, real)
 	plt.plot(real, real, 'r--')
 	plt.title(title)
@@ -135,6 +136,7 @@ def plot_scatter_learn_days(data, yhat, save=False):
 	fc = data.tail(len(yhat)).copy()
 	real = fc['ENERGY'].values
 	title= 'Scatter Model Results_Daily'
+	plt.figure(figsize=(12, 6))
 	plt.scatter(yhat, real)
 	plt.plot(real, real, 'r--')
 	plt.title(title)
@@ -149,7 +151,7 @@ def plot_scatter_learn_days(data, yhat, save=False):
 
 def plot_scatter_learn_days_2(data, save=False):
 	data = data.rename(columns={'ENERGY': 'real'})
-	sns.set(rc={'figure.figsize':(15,15)})
+	sns.set(rc={'figure.figsize':(12,6)})
 	sns_plot = sns.jointplot("forecast", "real", data=data, kind='reg',)
 	if save:
 		sns_plot.savefig(settings.g_path+title+'.png')
@@ -182,6 +184,7 @@ def plot_next_forecast(data, yhat, n_ahead, hist_tail= 300, save=False):
 
 def plot_model_metric(m_perf, metric, save=False):
 	if metric in m_perf.history:
+		plt.figure(figsize=(12, 6))
 		plt.plot(m_perf.history[metric])
 		val_m = 'val_'+metric
 		if val_m in m_perf.history:

@@ -16,7 +16,7 @@ import json
 save = True
 save_path = './saved/'
 
-model_type = '_u'
+model_type = '_m'
 
 
 
@@ -47,8 +47,23 @@ for folder in folders:
 #---------------------------------------------------------------
 #models_name = ["Modelo 1", "Modelo 2"]
 models_name = []
+
 for i in list_config:
-    models_name.append(str(i["optimizer"]))
+    models_name.append(str(i["features"]))
+    
+
+#for i in range(len(list_config)):
+#    models_name.append('Modelo_'+str(i+1))
+#models_conf = pd.DataFrame() 
+#models_conf = models_conf.append(list_config)
+#models_conf['Model'] = models_conf.index+1
+#models_conf.set_index('Model', inplace=True)
+#models_conf = models_conf[['features','layer1','act_func', 'loss', 'optimizer', 'past_hist', 'split_p']]
+#models_conf = models_conf.T
+#print(models_conf)
+#if save:
+#    models_conf.to_excel('./to_analyze/models_conf.xlsx', sheet_name='models')
+
 
 models_df= pd.DataFrame()
 for i in range(len(list_relat)):
@@ -71,6 +86,7 @@ for i in range(len(list_relat)):
 models_df= models_df[500:700]
 names_list = list(models_df.columns)
 fig,eje= plt.subplots(figsize=(10,5))
+eje.grid()
 title = 'Comparación de pronósticos de los Modelos'
 for i in names_list:
     eje.plot(models_df[i],label=i)
@@ -102,6 +118,7 @@ for relat in list_relat:
 #---------------------------------------------------------------
 metric = 'loss'
 fig,eje= plt.subplots(figsize=(10.3,5))
+eje.grid()
 legend_list=[]
 for i in range(len(list_perf)):
     m_perf = list_perf[i] 
@@ -116,13 +133,12 @@ for i in range(len(list_perf)):
         #eje.set_ylabel(metric)
         eje.set_xlabel('época')
         eje.set_title(title)
-        eje.set_ylim(-0.001,0.2)
+        eje.set_ylim(-0.001,0.1)
 #        legend_list.append('Model '+ str(i) +' Train')
 #        legend_list.append('Model '+ str(i) +' Test')
         legend_list.append(models_name[i] +' Entrenamiento')
         legend_list.append(models_name[i] +' Prueba')
         eje.legend(legend_list, loc='upper right')
-        eje.grid()
 #        if save:
 #            eje.savefig(settings.g_path+title+'.png')
 #    	eje.grid()

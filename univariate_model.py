@@ -78,7 +78,7 @@ yhat= model.predict(x_val)
 #yhat = [y[0] for y in model.predict(x_val)]
 
 it = 17
-graphs.show_plot([x_val[it], y_val[it], yhat[it]], 0,conf["type"], True)
+#graphs.show_plot([x_val[it], y_val[it], yhat[it]], 0,conf["type"], True)
 
 yhat = ml_tools.desnormalize(yhat, data_mean, data_std)
 
@@ -130,7 +130,18 @@ print(models_stats)
 
 ml_tools.save_experiment(conf)
 #---------------------------------------
-
+print("Análisis diario")
+daily = relat.resample('D').sum()[1:-1]
+graphs.plot_model_learn_days(daily, True)
+graphs.plot_scatter_learn_days(daily, daily['forecast'].values, save = True)
+graphs.plot_scatter_learn_days_2(daily)
+ml_tools.save_perf(settings.m_path+conf['type']+'_u'+'_fc_dt_d'+'.pkl', daily)
+print(daily[:30])
+cor_d = daily.astype(float).corr(method = 'pearson')
+print('Correlation: ', cor_d)
+rr_d = ml_tools.det_coef(daily["ENERGY"].values, daily["forecast"].values)
+print("R2 coef: ",rr_d)
+#------------------------------------------
 
 ####################################
 ##Predecir los N siguientes valores

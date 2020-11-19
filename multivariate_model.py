@@ -38,6 +38,9 @@ features = conf["features"]
 data = pd.read_excel(settings.ex_data, sheet_name='data')
 data['DateTime'] = pd.to_datetime(data['DateTime'])
 data.set_index('DateTime', inplace=True)
+data = data.loc['06-01-2019':'07-30-2020']
+data.to_excel(settings.m_path+conf['type']+'agosto.xlsx', sheet_name='data')
+print(data)
 data = data[:-140]
 data = data.astype(float)
 
@@ -141,6 +144,27 @@ print('Correlation: ', cor_d)
 rr_d = ml_tools.det_coef(daily["ENERGY"].values, daily["forecast"].values)
 print("R2 coef: ",rr_d)
 #------------------------------------------
+#----------------------------------------------------
+metrics = ["mse", "mae", "mape", "root_mean_squared_error"]
+metric_list=[]
+for k in metrics: 
+    metric_list.append(m_perf.history[k][-1])
+
+#columns_l=['name','corr', 'det'] + metrics
+#models_stats= pd.DataFrame(columns = columns_l)
+models_stats= pd.DataFrame()
+models_stats['name']=[conf["optimizer"]]
+models_stats['corr']=[cor.iloc[0][1]]
+models_stats['det']=[rr]
+
+for i in range(len(metrics)):
+    if metrics[i] == "root_mean_squared_error":
+        models_stats['rmse']=metric_list[i]
+    else:
+        models_stats[metrics[i]]=metric_list[i]
+models_stats.to_excel(settings.m_path+conf['type']+'models_stats.xlsx', sheet_name='stats')
+print(models_stats)  
+
 
 ml_tools.save_experiment(conf, True)
 
