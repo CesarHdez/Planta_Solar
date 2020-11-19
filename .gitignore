@@ -1,5 +1,7 @@
 __pycache__/
 data_files/
 graphics/
+experiments/
+models/
 logs/
 Olds/
