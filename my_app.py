@@ -3,10 +3,13 @@ import numpy as np
 import streamlit as st
 import datetime as dt
 import os
+import streamlit_theme as stt
+
+
 os.environ['TZ'] = 'UTC'
 
-
-st.title('Copiapo Solar Plant')
+#stt.set_theme({'primary': '#ffffff'})
+st.title('Solar Plant Predictor')
 
 load_state = st.text('Loading data...')
 #@st.cahe
@@ -37,4 +40,4 @@ st.line_chart(data[start_date:end_date]['WS1'])
 st.line_chart(data[start_date:end_date]['IRRAD1'])
 st.line_chart(data[start_date:end_date]['TEMP1'])
 st.line_chart(data[start_date:end_date]['WANG'])
-print(daily.index)
+

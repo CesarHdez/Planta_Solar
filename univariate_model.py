@@ -41,6 +41,7 @@ data.set_index('DateTime', inplace=True)
 data = data.astype(float)
 #data = data['ENERGY']
 data[conf["y_var"]].astype(float)
+#------------------------------------------------------------
 #data.plot(subplots = True)
 #data_u = np.concatenate((data[out_var].values,np.flipud(data[out_var].values)))#duplicado y flipiado
 data_u = data[conf["y_var"]].values
@@ -171,7 +172,7 @@ print("R2 coef: ",rr_d)
 #fc = ml_tools.forecast_dataframe(data, yhat, n_ahead)
 #fc =fc.iloc[-49:]
 #print(fc)
-#
+
 #ml_tools.save_experiment()
 
 

@@ -16,6 +16,7 @@ conf_path = 'lstm_config.json'
 conf_path_mpl = 'mpl_config.json'
 conf_path_m_mpl = 'mpl_m_config.json'
 exp_path = './experiments/'
+app_models_path = './app_models/'
 this_path = './'
 tb_path = "logs\\fit\\"
 

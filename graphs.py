@@ -57,13 +57,14 @@ def multi_step_plot(history, true_future, prediction, STEP, save=False):
 	if save:
 		plt.savefig(settings.g_path+title+'.png')
 	plt.grid()
-	plt.show()
+	plt.show() 	
 
 def plot_model_learn_days(relat, save=False):
 	fc = relat
+	fc = fc.rename(columns={'ENERGY': 'Real','forecast':'Pronóstico'})
 	plt.figure(figsize=(12, 6))
 	title= 'Pronóstico diario'
-	for dtype in ['ENERGY', 'forecast']:
+	for dtype in ['Real', 'Pronóstico']:
 	    plt.plot(
 	        fc.index,
 	        dtype,
@@ -83,6 +84,7 @@ def plot_model_learn_days(relat, save=False):
 		plt.savefig(settings.g_path+title+'.png')
 	plt.grid()
 	plt.show()
+
 
 
 def plot_model_learn(data, yhat, y_var='ENERGY', save=False):
@@ -139,8 +141,8 @@ def plot_scatter_learn_days(data, yhat, save=False):
 	plt.figure(figsize=(12, 6))
 	plt.scatter(yhat, real)
 	plt.plot(real, real, 'r--')
-	plt.title(title)
-	plt.xlabel('Forecast')
+	#plt.title(title)
+	plt.xlabel('Pronóstico')
 	plt.ylabel('Real')
 	plt.legend()
 	plt.grid()
@@ -164,7 +166,7 @@ def plot_next_forecast(data, yhat, n_ahead, hist_tail= 300, save=False):
 	title= 'Next ' + str(n_ahead) +' Forecast'
 	plt.figure(figsize=(12, 6))
 	for col_type in ['history', 'forecast']:
-	    print(col_type)
+	    #print(col_type)
 	    plt.plot(
 	        'DateTime', 
 	        'ENERGY', 

@@ -38,8 +38,8 @@ features = conf["features"]
 data = pd.read_excel(settings.ex_data, sheet_name='data')
 data['DateTime'] = pd.to_datetime(data['DateTime'])
 data.set_index('DateTime', inplace=True)
-data = data.loc['06-01-2019':'07-30-2020']
-data.to_excel(settings.m_path+conf['type']+'agosto.xlsx', sheet_name='data')
+#|data = data.loc['06-01-2019':'06-30-2020']
+data = data.loc['06-01-2019':'06-30-2020']
 print(data)
 data = data[:-140]
 data = data.astype(float)

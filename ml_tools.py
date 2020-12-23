@@ -241,6 +241,31 @@ def save_experiment(conf, multi_model=False):
 
     #model code
     shutil.copy2(settings.mk_path+conf["type"]+'.py', dir_name)
+
+def save_model_2app(conf, multi_model=False):
+    if not os.path.exists(settings.exp_path):
+        os.mkdir(settings.exp_path)
+    time_name = str(time.strftime('%Y%m%d%H%M%S', time.localtime(time.time())))
+    dir_name = settings.app_models_path + time_name
+    try:
+        os.mkdir(dir_name)
+    except:
+        print("Directory Experiment Error")
+        
+    #modelos
+    for pic in glob.glob(settings.m_path+"*.h5"):
+        shutil.copy2(pic, dir_name)
+        
+    for pic in glob.glob(settings.m_path+"*.pkl"):
+        shutil.copy2(pic, dir_name)
+    #config
+    if multi_model:
+        shutil.copy2(settings.this_path+'m_config.json', dir_name)
+    else:
+        shutil.copy2(settings.this_path+'u_config.json', dir_name)
+
+    #model code
+    shutil.copy2(settings.mk_path+conf["type"]+'.py', dir_name)
     
 def clean_output_folders():
     if os.path.exists(settings.g_path):

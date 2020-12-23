@@ -1,6 +1,7 @@
 from tensorflow.keras.models import load_model
 import ml_tools
 import settings
+import graphs
 import tools
 import os
 import pandas as pd
@@ -45,15 +46,16 @@ for folder in folders:
     list_config.append(conf)
 
 #---------------------------------------------------------------
-#models_name = ["Modelo 1", "Modelo 2"]
+#models_name = ["Modelo 1"]
+
 models_name = []
+#for i in list_config:
+#    models_name.append(str(i["optimizer"]))
+#    #models_name.append("")
+#    
 
-for i in list_config:
-    models_name.append(str(i["features"]))
-    
-
-#for i in range(len(list_config)):
-#    models_name.append('Modelo_'+str(i+1))
+for i in range(len(list_config)):
+    models_name.append('Modelo_'+str(i+1))
 #models_conf = pd.DataFrame() 
 #models_conf = models_conf.append(list_config)
 #models_conf['Model'] = models_conf.index+1
@@ -84,6 +86,7 @@ for i in range(len(list_relat)):
         #models_df['Model_'+str(i)]= temp_list
 #---------------------------------------------------------------
 models_df= models_df[500:700]
+#models_df= models_df.rename(columns={'Modelo_1':'Modelo_4','Modelo_2':'Modelo_5','Modelo_3':'Modelo_6'})
 names_list = list(models_df.columns)
 fig,eje= plt.subplots(figsize=(10,5))
 eje.grid()
@@ -93,7 +96,7 @@ for i in names_list:
     eje.set_ylim(-150,11000)
     eje.legend()
     eje.set_ylabel('Producción (MWh)')
-    eje.set_title(title)
+    #eje.set_title(title)
 if save:
     fig.savefig('./to_analyze/'+title+'.png')
 #---------------------------------------------------------------
@@ -132,7 +135,7 @@ for i in range(len(list_perf)):
         eje.set_ylabel('Pérdida')
         #eje.set_ylabel(metric)
         eje.set_xlabel('época')
-        eje.set_title(title)
+        #eje.set_title(title)
         eje.set_ylim(-0.001,0.1)
 #        legend_list.append('Model '+ str(i) +' Train')
 #        legend_list.append('Model '+ str(i) +' Test')
@@ -182,7 +185,18 @@ print(models_stats)
 if save:
     models_stats.to_excel('./to_analyze/models_stats.xlsx', sheet_name='stats')
     
-
+#-----------------------------------------------------------------
+for relat in list_relat:
+    daily = relat.resample('D').sum()[1:-1]
+    graphs.plot_model_learn_days(daily, True)
+    graphs.plot_scatter_learn_days(daily, daily['forecast'].values, save = True)
+    graphs.plot_scatter_learn_days_2(daily)
+    ml_tools.save_perf(settings.m_path+conf['type']+'_u'+'_fc_dt_d'+'.pkl', daily)
+    print(daily[:30])
+    cor_d = daily.astype(float).corr(method = 'pearson')
+    print('Correlation: ', cor_d)
+    rr_d = ml_tools.det_coef(daily["ENERGY"].values, daily["forecast"].values)
+    print("R2 coef: ",rr_d)
 
 
 

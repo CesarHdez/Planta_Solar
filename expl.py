@@ -13,9 +13,12 @@ data = pd.read_excel(settings.ex_data, sheet_name='data')
 data['DateTime'] = pd.to_datetime(data['DateTime'])
 data.set_index('DateTime', inplace=True)
 
+data = data.loc['05-01-2020':'05-30-2020']
+
 daily = data.resample('D').mean()
 weekly = data.resample('W').mean()
 monthly = data.resample('M').mean()
+
 #---------------------------------------------------------
 ##Box por hora
 #sns.set_style('ticks')
@@ -104,22 +107,23 @@ monthly = data.resample('M').mean()
 #plt.show()
 #---------------------------------------------------------
 
-#sns.set(rc={'figure.figsize':(10, 5)})
-#data['ENERGY'].plot(linewidth=1)
-#
-#values = data.values
-## specify columns to plot
-##fields = ['EAE','IRRAD1','IRRAD2','IRRAD3','IRRAD4','IRRAD5','TEMP1','TEMP2','WS1','WS2', 'WANG']
+sns.set(rc={'figure.figsize':(10, 5)})
+data['ENERGY'].plot(linewidth=1)
+
+values = data.values
+# specify columns to plot
+#fields = ['EAE','IRRAD1','IRRAD2','IRRAD3','IRRAD4','IRRAD5','TEMP1','TEMP2','WS1','WS2', 'WANG']
 #fields = ['ENERGY','IRRAD1','IRRAD2','IRRAD3','IRRAD4','IRRAD5','TEMP1','TEMP2','WS1','WS2', 'WANG']
-#i = 1
-## plot each column
-#plt.figure(figsize=(25, 30))
-#for j in fields:
-#	plt.subplot(len(fields), 1, i)
-#	plt.plot(data[j],label=j)
-#	plt.title(j, y=0.5, loc='left')
-#	i += 1
-#plt.show()
+fields = ['ENERGY','IRRAD4','TEMP1','WS1']
+i = 1
+# plot each column
+plt.figure(figsize=(30, 20))
+for j in fields:
+	plt.subplot(len(fields), 1, i)
+	plt.plot(data[j],label=j)
+	plt.title(j, y=0.5, loc='left')
+	i += 1
+plt.show()
 
 
 

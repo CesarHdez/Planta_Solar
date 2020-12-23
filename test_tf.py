@@ -88,6 +88,7 @@ values = dataset.values
 groups = [1, 2, 3, 4]
 #fields = ['EAE','IRRAD1','IRRAD2','IRRAD3','IRRAD4','IRRAD5','TEMP1','TEMP2','WS1','WS2', 'WANG']
 fields = ['ENERGY','IRRAD1','IRRAD2','IRRAD3','IRRAD4','IRRAD5','TEMP1','TEMP2','WS1','WS2', 'WANG']
+
 i = 1
 # plot each column
 plt.figure(figsize=(25, 30))

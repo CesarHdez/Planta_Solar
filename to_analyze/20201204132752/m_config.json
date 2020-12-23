@@ -1,7 +1,7 @@
 {
 	"type" : "Custom1",
 	"y_var": "ENERGY",
-	"features" : ["TEMP1","WS1"],
+	"features" : ["IRRAD4", "TEMP1"],
 	"batch_size" : 40,
 	"epoch" : 20,
 	"layer1" : 20,
@@ -16,7 +16,7 @@
 	"early_s" : 30,
 	"baseline" : 0.022,
 	"callbacks" : 0,
-	"past_hist" : 24,
+	"past_hist" : 72,
 	"future_target" : 0,
 	"split_p" : 90,
 	"metrics" : ["mse", "mae", "mape"],
