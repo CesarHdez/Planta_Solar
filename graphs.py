@@ -173,7 +173,7 @@ def plot_next_forecast(data, yhat, n_ahead, hist_tail= 300, save=False):
 	        data=fc[fc['type']==col_type],
 	        label=col_type
 	        )
-	plt.title(title)
+	#plt.title(title)
 	plt.xlabel('Time')
 	plt.ylabel('ENERGY')
 	plt.legend()

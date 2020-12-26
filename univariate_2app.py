@@ -34,6 +34,7 @@ data_u, data_mean, data_std = ml_tools.normalize(data_u)
 
 #Predecir los N siguientes valores
 
+#Aqui comenzaria el for para generar modelos
 #-----------------------------------------------
 u_past_hist= conf["past_hist"]
 u_future_traget = conf["future_target"]
@@ -47,10 +48,14 @@ x_train, y_train = ml_tools.univariate_data(data_u, 0, train_split, u_past_hist,
 
 model, m_perf = model_mk.model_maker(conf, x_train, y_train)
 model.save(settings.m_path+conf['type']+'_u'+'.h5')
-graphs.plot_model_metric(m_perf, 'loss', save = True)
-#model = load_model(settings.m_path+conf['type']+'_u'+'.h5')
+graphs.plot_model_metric(m_perf, 'loss', save = False)
 #
 #
+ml_tools.save_model_2app(conf)
+
+#Aqui termina el for para generar modelos
+
+
 #-----------------------------------------------
 n_ahead = conf["n_ahead"]
 last_input= x_train[-1]
@@ -71,4 +76,3 @@ fc = ml_tools.forecast_dataframe(data, yhat, n_ahead)
 fc =fc.iloc[-49:]
 print(fc)
 
-ml_tools.save_model_2app(conf)
