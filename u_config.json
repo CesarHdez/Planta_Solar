@@ -6,7 +6,7 @@
 	"layer1" : 150,
 	"layer2" : 75,
 	"layer3" : 0,
-	"act_func" : "relu",
+	"act_func" : "LeakyReLU",
 	"dropout" : 0.2,
 	"l2_reg" : 0.01,
 	"loss" : "logcosh",

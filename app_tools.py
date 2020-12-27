@@ -13,16 +13,16 @@ import tools
 import datetime
 from tensorflow.keras.models import load_model
 
-with open(settings.conf_u_path) as config_file:
-    conf = json.load(config_file)
+# with open(settings.conf_u_path) as config_file:
+#     conf = json.load(config_file)
 
-data = pd.read_excel(settings.ex_data, sheet_name='data')
-data['DateTime'] = pd.to_datetime(data['DateTime'])
-data.set_index('DateTime', inplace=True)
-#data = data[:-120]
-data = data.astype(float)
-#data = data['ENERGY']
-data[conf["y_var"]].astype(float)
+# data = pd.read_excel(settings.ex_data, sheet_name='data')
+# data['DateTime'] = pd.to_datetime(data['DateTime'])
+# data.set_index('DateTime', inplace=True)
+# #data = data[:-120]
+# data = data.astype(float)
+# #data = data['ENERGY']
+# data[conf["y_var"]].astype(float)
 
 #---------------------------------------------
 def get_lib_models():
@@ -51,7 +51,7 @@ def dict_compare(d1, d2):
     same = set(o for o in shared_keys if d1[o] == d2[o])
     return same
 #---------------------------------------------
-list_config, list_model = get_lib_models()
+# list_config, list_model = get_lib_models()
 def find_model(list_config, list_model, query):
     foud_index=None
     for i in range(len(list_config)):
@@ -60,7 +60,7 @@ def find_model(list_config, list_model, query):
     if foud_index is None:
         return None
     else:
-        return list_model[foud_index]
+        return list_model[foud_index], list_config[foud_index]
 #---------------------------------------------
     
 def get_data_2_predict(data, conf, date):
@@ -90,24 +90,24 @@ def predicción_stats(data,fc):
 #----------------------------------------------------
     
 
-query = {
-	"layer1" : 150,
-	"act_func" : "LeakyReLU",
-	"loss" : "logcosh",
-	"optimizer": "RMSprop",
-	"past_hist" : 48,
-	"split_p" : 80
-}
+# query = {
+# 	"layer1" : 150,
+# 	"act_func" : "LeakyReLU",
+# 	"loss" : "logcosh",
+# 	"optimizer": "RMSprop",
+# 	"past_hist" : 48,
+# 	"split_p" : 80
+# }
 
-model = find_model(list_config, list_model, query)
-if model is None:
-    print("El modelo que requiere no se encuentra en la librería")
-else:
-    n_ahead = 24
-    date = '2019-06-03 00:00:00'
+# model, conf = find_model(list_config, list_model, query)
+# if model is None:
+#     print("El modelo que requiere no se encuentra en la librería")
+# else:
+#     n_ahead = 24
+#     date = '2019-06-03 00:00:00'
     
-    data, data_r, data_mean_2, data_std_2 = get_data_2_predict(data, conf, date)
-    fc = make_predicción(model, n_ahead, data, data_r, data_mean_2, data_std_2)
+#     data, data_r, data_mean_2, data_std_2 = get_data_2_predict(data, conf, date)
+#     fc = make_predicción(model, n_ahead, data, data_r, data_mean_2, data_std_2)
     
-    fc =fc.iloc[-49:]
-    print(fc)
+#     fc =fc.iloc[-49:]
+#     print(fc)
