@@ -41,10 +41,11 @@ st.title('Predictor de Producción Fotovoltaica')
 load_state = st.text('Cargando datos y modelos...')
 
 data = load_data()
-data_master = data
 list_config, list_model = load_models()
 
 load_state = st.text('Carga completada!')
+
+
 
 st.sidebar.header('Parámetros del Modelo')
 def model_parameters():
@@ -65,6 +66,13 @@ def model_parameters():
 query, features= model_parameters()
 st.subheader('Parámetros del Modelo')
 st.write(features)
+
+
+# print(data)
+# st.header('Data Fixed')
+# st.dataframe(data)
+
+
 
 st.sidebar.header('Sobre la predicción')
 min_date = dt.datetime.strptime('2019-06-03', '%Y-%m-%d')
@@ -89,19 +97,9 @@ if pressed:
 	    left_column, right_column = st.beta_columns(2)
 	    left_column.line_chart(data['ENERGY'])
 	    right_column.dataframe(data['ENERGY'])
-
-	    st.subheader('Realizando predicción...')
 	    fc = app_tools.make_predicción(model, n_ahead, data, data_r, data_mean_2, data_std_2)
-
-	    comp_df = app_tools.compare_df(data_master,fc)
-	    comp = comp_df.drop(columns=['type'])
-
-	    left_column_2, right_column_2 = st.beta_columns(2)
-	    left_column_2.dataframe(comp[-n_ahead:])
-	    stats_df = app_tools.comp_stats(comp_df)
-	    right_column_2.dataframe(stats_df.T)
-
-	    st.line_chart(comp)
+	    st.subheader('Realizando predicción...')
+	    st.dataframe(fc)
 
 # st.line_chart(data[start_date:end_date]['WS1'])
 # st.line_chart(data[start_date:end_date]['IRRAD1'])

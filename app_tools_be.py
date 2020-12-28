@@ -13,16 +13,18 @@ import tools
 import datetime
 from tensorflow.keras.models import load_model
 
-# with open(settings.conf_u_path) as config_file:
-#     conf = json.load(config_file)
+with open(settings.conf_u_path) as config_file:
+    conf = json.load(config_file)
 
-# data = pd.read_excel(settings.ex_data, sheet_name='data')
-# data['DateTime'] = pd.to_datetime(data['DateTime'])
-# data.set_index('DateTime', inplace=True)
-# #data = data[:-120]
-# data = data.astype(float)
-# #data = data['ENERGY']
-# data[conf["y_var"]].astype(float)
+data = pd.read_excel(settings.ex_data, sheet_name='data')
+data['DateTime'] = pd.to_datetime(data['DateTime'])
+data.set_index('DateTime', inplace=True)
+#data = data[:-120]
+data = data.astype(float)
+#data = data['ENERGY']
+data[conf["y_var"]].astype(float)
+
+data_master = data
 
 #---------------------------------------------
 def get_lib_models():
@@ -51,14 +53,14 @@ def dict_compare(d1, d2):
     same = set(o for o in shared_keys if d1[o] == d2[o])
     return same
 #---------------------------------------------
-#list_config, list_model = get_lib_models()
+list_config, list_model = get_lib_models()
 def find_model(list_config, list_model, query):
     foud_index=None
     for i in range(len(list_config)):
         if dict_compare(list_config[i], query) == set(query.keys()):
             foud_index=i
     if foud_index is None:
-        return [],[]
+        return None
     else:
         return list_model[foud_index], list_config[foud_index]
 #---------------------------------------------
@@ -83,7 +85,7 @@ def make_predicción(model, n_ahead, data, data_r, data_mean_2, data_std_2):
     yhat = ml_tools.desnormalize(np.array(yhat), data_mean_2, data_std_2)
     yhat = ml_tools.model_out_tunep(yhat)
     #-----------------------------------------------
-#    graphs.plot_next_forecast(data, yhat, n_ahead, save=True)
+    graphs.plot_next_forecast(data, yhat, n_ahead, save=True)
     fc = ml_tools.forecast_dataframe(data, yhat, n_ahead)
     return fc
 #----------------------------------------------------
@@ -92,8 +94,6 @@ def compare_df(data_master,fc):
     t_strt = p_df["DateTime"].iloc[0]
     t_end = p_df["DateTime"].iloc[-1]
     r_df = data_master.loc[t_strt:t_end]
-#    r_mean = r_df["ENERGY"].values.mean()
-#    r_sum = r_df["ENERGY"].values.sum()
     comp_df = fc
     comp_df.set_index("DateTime", inplace = True)
     comp_df = comp_df.rename(columns = {'ENERGY':'Predicción'})
@@ -115,3 +115,50 @@ def comp_stats(comp_df):
     stats_df = pd.DataFrame(stats_dic, index=['Predicción', 'Real'])
     return stats_df
 #----------------------------------------------------
+    
+
+query = {
+	"layer1" : 150,
+	"act_func" : "LeakyReLU",
+	"loss" : "logcosh",
+	"optimizer": "RMSprop",
+	"past_hist" : 48
+}
+
+query = {
+	"layer1" : 50,
+	"act_func" : "relu",
+	"loss" : "mse",
+	"optimizer": "Adam",
+	"past_hist" : 24
+}
+
+
+model, conf = find_model(list_config, list_model, query)
+if model is None:
+    print("El modelo que requiere no se encuentra en la librería")
+else:
+    n_ahead = 24
+    date = '2019-06-03 00:00:00'
+    
+    data, data_r, data_mean_2, data_std_2 = get_data_2_predict(data, conf, date)
+    fc = make_predicción(model, n_ahead, data, data_r, data_mean_2, data_std_2)
+    print(fc)
+    comp_df = compare_df(data_master,fc)
+    print(comp_df)
+    comp_stats(comp_df)
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+

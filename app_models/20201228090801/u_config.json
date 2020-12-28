@@ -4,7 +4,7 @@
 	"batch_size" : 100,
 	"epoch" : 10,
 	"layer1" : 50,
-	"layer2" : 25,
+	"layer2" : 75,
 	"layer3" : 0,
 	"act_func" : "relu",
 	"dropout" : 0.2,
