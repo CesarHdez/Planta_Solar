@@ -9,7 +9,7 @@
     "act_func": "elu",
     "dropout": 0.2,
     "l2_reg": 0.01,
-    "loss": "huber_loss",
+    "loss": "MSE",
     "optimizer": "RMSprop",
     "lr": 0.001,
     "early_s": 30,

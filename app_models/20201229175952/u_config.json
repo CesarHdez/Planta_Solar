@@ -6,7 +6,7 @@
     "layer1": 50,
     "layer2": 25,
     "layer3": 0,
-    "act_func": "elu",
+    "act_func": "relu",
     "dropout": 0.2,
     "l2_reg": 0.01,
     "loss": "huber_loss",
