@@ -43,6 +43,27 @@ def get_lib_models():
                 conf = json.load(config_file)
         list_config.append(conf)
     return list_config, list_model
+
+def get_lib_models_config():
+    list_config = []
+    with os.scandir(settings.app_models_path) as folders:
+        folders = [folders.name for folders in folders if folders.is_dir()]  
+        
+    for folder in folders:
+        with os.scandir(settings.app_models_path +'/' +folder ) as files:
+            files = [files.name for files in files if files.is_file() and files.name.endswith('config.json')]
+            with open(settings.app_models_path +'/' + folder +'/' +files[0]) as config_file:
+                conf = json.load(config_file)
+        list_config.append(conf)
+    return list_config, folders
+
+def get_model_by_folderindex(folders, index):
+    model_type = '_u'
+    with os.scandir(settings.app_models_path +'/' + folders[index] ) as files:
+        files = [files.name for files in files if files.is_file() and files.name.endswith(model_type +'.h5')]
+    model = load_model(settings.app_models_path +'/' + folders[index] +'/' +files[0])
+    return model
+    
 #---------------------------------------------
 def dict_compare(d1, d2):
     d1_keys = set(d1.keys())
@@ -61,7 +82,17 @@ def find_model(list_config, list_model, query):
         return [],[]
     else:
         return list_model[foud_index], list_config[foud_index]
-#---------------------------------------------
+
+def find_model_by_config(list_config, query):
+    foud_index=None
+    for i in range(len(list_config)):
+        if dict_compare(list_config[i], query) == set(query.keys()):
+            foud_index=i
+    if foud_index is None:
+        return [],[]
+    else:
+        return  list_config[foud_index], foud_index
+#------------------------------------------------
     
 def get_data_2_predict(data, conf, date):
     #data= data[conf["y_var"]]

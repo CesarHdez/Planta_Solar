@@ -37,18 +37,29 @@ def ls2(path):
 def ls2_dir(path):
     return [obj.name for obj in scandir(path) if obj.is_dir()]
 
-def fix_excel(filename):
-	headers_list= settings.headers_list[1:]
-	raw_data = pd.read_excel(filename, 'Data')
-	raw_data['DateTime'] = raw_data['Date'] +' '+raw_data['Time']
-	raw_data.drop(['Date', 'Time'], axis=1, inplace=True)
-	col_names =list(raw_data.columns)
-	raw_data = raw_data.reindex(columns =['DateTime'] + col_names[:-1])
-	raw_data.columns = settings.headers_list
-	raw_data = format_dataframe(raw_data, 'DateTime')
-	raw_data = raw_data[:-1]
-	return raw_data
+# def fix_excel(filename):
+#     headers_list= settings.headers_list[1:]
+#     raw_data = pd.read_excel(filename, 'Data')
+#     raw_data['DateTime'] = raw_data['Date'] +' '+raw_data['Time']
+#     raw_data.drop(['Date', 'Time'], axis=1, inplace=True)
+#     col_names =list(raw_data.columns)
+#     raw_data = raw_data.reindex(columns =['DateTime'] + col_names[:-1])
+#     raw_data.columns = settings.headers_list
+#     raw_data = format_dataframe(raw_data, 'DateTime')
+#     raw_data = raw_data[:-1]
+#     return raw_data
 
+def fix_excel(filename):
+    headers_list= settings.headers_list[1:]
+    raw_data = pd.read_excel(filename, 'Data')
+    raw_data['DateTime'] = raw_data['Date'] +' '+raw_data['Time']
+    raw_data.drop(['Date', 'Time'], axis=1, inplace=True)
+    col_names =list(raw_data.columns)
+    raw_data = raw_data.reindex(columns =['DateTime'] + col_names[:-1])
+    raw_data.columns = settings.headers_list
+    raw_data = format_dataframe(raw_data, 'DateTime')
+    raw_data = raw_data[:-1]
+    return raw_data
 
 def fill_na_col_daym(data, col):
 	null_list = list(data[col].isnull().values)

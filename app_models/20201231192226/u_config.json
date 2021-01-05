@@ -1,0 +1,27 @@
+{
+    "type": "Custom1",
+    "y_var": "ENERGY",
+    "batch_size": 40,
+    "epoch": 50,
+    "layer1": 100,
+    "layer2": 25,
+    "layer3": 0,
+    "act_func": "LeakyReLU",
+    "dropout": 0.2,
+    "l2_reg": 0.01,
+    "loss": "huber_loss",
+    "optimizer": "Adam",
+    "lr": 0.001,
+    "early_s": 30,
+    "baseline": 0.015,
+    "callbacks": 0,
+    "past_hist": 48,
+    "future_target": 0,
+    "split_p": 80,
+    "metrics": [
+        "mse",
+        "mae",
+        "mape"
+    ],
+    "n_ahead": 24
+}

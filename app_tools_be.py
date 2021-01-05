@@ -16,7 +16,8 @@ from tensorflow.keras.models import load_model
 with open(settings.conf_u_path) as config_file:
     conf = json.load(config_file)
 
-data = pd.read_excel(settings.ex_data, sheet_name='data')
+#data = pd.read_excel(settings.ex_data, sheet_name='data')
+data = pd.read_excel(settings.app_src_path+ "app_data.xlsx", sheet_name='data')
 data['DateTime'] = pd.to_datetime(data['DateTime'])
 data.set_index('DateTime', inplace=True)
 #data = data[:-120]
@@ -45,6 +46,19 @@ def get_lib_models():
                 conf = json.load(config_file)
         list_config.append(conf)
     return list_config, list_model
+
+def get_lib_models_config():
+    list_config = []
+    with os.scandir(settings.app_models_path) as folders:
+        folders = [folders.name for folders in folders if folders.is_dir()]  
+        
+    for folder in folders:
+        with os.scandir(settings.app_models_path +'/' +folder ) as files:
+            files = [files.name for files in files if files.is_file() and files.name.endswith('config.json')]
+            with open(settings.app_models_path +'/' + folder +'/' +files[0]) as config_file:
+                conf = json.load(config_file)
+        list_config.append(conf)
+    return list_config, folders
 #---------------------------------------------
 def dict_compare(d1, d2):
     d1_keys = set(d1.keys())
@@ -53,7 +67,9 @@ def dict_compare(d1, d2):
     same = set(o for o in shared_keys if d1[o] == d2[o])
     return same
 #---------------------------------------------
-list_config, list_model = get_lib_models()
+#list_config, list_model = get_lib_models()
+list_config, folders = get_lib_models_config()
+
 def find_model(list_config, list_model, query):
     foud_index=None
     for i in range(len(list_config)):
@@ -63,6 +79,23 @@ def find_model(list_config, list_model, query):
         return None
     else:
         return list_model[foud_index], list_config[foud_index]
+    
+def find_model_by_config(list_config, query):
+    foud_index=None
+    for i in range(len(list_config)):
+        if dict_compare(list_config[i], query) == set(query.keys()):
+            foud_index=i
+    if foud_index is None:
+        return [],[]
+    else:
+        return  list_config[foud_index], foud_index
+    
+def get_model_by_folderindex(folders, index):
+    model_type = '_u'
+    with os.scandir(settings.app_models_path +'/' + folders[index] ) as files:
+        files = [files.name for files in files if files.is_file() and files.name.endswith(model_type +'.h5')]
+    model = load_model(settings.app_models_path +'/' + folders[index] +'/' +files[0])
+    return model
 #---------------------------------------------
     
 def get_data_2_predict(data, conf, date):
@@ -126,20 +159,21 @@ query = {
 }
 
 query = {
-	"layer1" : 50,
+	"layer1" : 150,
 	"act_func" : "relu",
-	"loss" : "mse",
+	"loss" : "MSE",
 	"optimizer": "Adam",
-	"past_hist" : 24
+	"past_hist" : 72
 }
 
 
-model, conf = find_model(list_config, list_model, query)
-if model is None:
+conf, model_index = find_model_by_config(list_config, query)
+if type(conf)==list:
     print("El modelo que requiere no se encuentra en la librería")
 else:
+    model = get_model_by_folderindex(folders, model_index)
     n_ahead = 24
-    date = '2019-06-03 00:00:00'
+    date = '2020-01-08 00:00:00'
     
     data, data_r, data_mean_2, data_std_2 = get_data_2_predict(data, conf, date)
     fc = make_predicción(model, n_ahead, data, data_r, data_mean_2, data_std_2)
@@ -147,6 +181,20 @@ else:
     comp_df = compare_df(data_master,fc)
     print(comp_df)
     comp_stats(comp_df)
+#---------------------------------------------------
+#model, conf = find_model(list_config, list_model, query)
+#if model is None:
+#    print("El modelo que requiere no se encuentra en la librería")
+#else:
+#    n_ahead = 24
+#    date = '2019-06-03 00:00:00'
+#    
+#    data, data_r, data_mean_2, data_std_2 = get_data_2_predict(data, conf, date)
+#    fc = make_predicción(model, n_ahead, data, data_r, data_mean_2, data_std_2)
+#    print(fc)
+#    comp_df = compare_df(data_master,fc)
+#    print(comp_df)
+#    comp_stats(comp_df)
 
 
 
