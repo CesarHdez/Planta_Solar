@@ -52,7 +52,7 @@ full_data = data_prep()
 #full_data = full_data.sort_index(axis=0)
 #-------------------------------
 
-full_data.to_excel('app_data.xlsx', sheet_name='data')
+full_data.to_excel('app_data_2.xlsx', sheet_name='data')
 #
 #full_data contiene los datos con frecuencia de una hora.
 #full_data en distintas frecuencias

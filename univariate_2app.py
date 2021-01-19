@@ -21,7 +21,7 @@ with open(settings.conf_u_path) as config_file:
     conf = json.load(config_file)
 
 #data = pd.read_excel(settings.ex_data, sheet_name='data')
-data = pd.read_excel('app_data.xlsx', sheet_name='data')
+data = pd.read_excel('app_data_2.xlsx', sheet_name='data')
 data['DateTime'] = pd.to_datetime(data['DateTime'])
 data.set_index('DateTime', inplace=True)
 #data = data[:-120]

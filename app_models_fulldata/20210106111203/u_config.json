@@ -1,0 +1,27 @@
+{
+    "type": "Custom1",
+    "y_var": "ENERGY",
+    "batch_size": 40,
+    "epoch": 50,
+    "layer1": 50,
+    "layer2": 25,
+    "layer3": 0,
+    "act_func": "elu",
+    "dropout": 0.2,
+    "l2_reg": 0.01,
+    "loss": "MSE",
+    "optimizer": "RMSprop",
+    "lr": 0.001,
+    "early_s": 30,
+    "baseline": 0.015,
+    "callbacks": 0,
+    "past_hist": 48,
+    "future_target": 0,
+    "split_p": 80,
+    "metrics": [
+        "mse",
+        "mae",
+        "mape"
+    ],
+    "n_ahead": 24
+}
