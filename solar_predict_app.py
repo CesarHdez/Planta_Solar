@@ -4,7 +4,6 @@ import streamlit as st
 import datetime as dt
 import time
 import os
-import streamlit_theme as stt
 import app_tools
 import settings
 from keras.models import load_model
