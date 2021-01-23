@@ -3,8 +3,6 @@ import numpy as np
 import json
 import os
 
-from keras.models import load_model
-
 import model_mk
 import settings
 import graphs
