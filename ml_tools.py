@@ -8,8 +8,6 @@ import glob
 import json
 import pickle
 
-
-import tools
 import settings
 #-----------------
 #With data
