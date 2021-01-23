@@ -191,7 +191,10 @@ def predict_n_ahead(model, n_ahead, last_input):
     yhat = [y[0][0] for y in yhat]
     return yhat
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 98f1cb366fc70b0b6e7ab7efb88e208aafb63a1a
 
 #-----------------
 #With experiments
