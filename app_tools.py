@@ -7,7 +7,6 @@ import settings
 import ml_tools
 import datetime
 from tensorflow.keras.models import load_model
-
 # with open(settings.conf_u_path) as config_file:
 #     conf = json.load(config_file)
 
@@ -56,7 +55,7 @@ def get_model_by_folderindex(folders, index):
     model_type = '_u'
     with os.scandir(settings.app_models_path +'/' + folders[index] ) as files:
         files = [files.name for files in files if files.is_file() and files.name.endswith(model_type +'.h5')]
-    model = load_model(settings.app_models_path +'/' + folders[index] +'/' +files[0])
+    model = load_model(settings.app_models_path +'/' + folders[index] +'/' +files[0], compile=False)
     return model
     
 #---------------------------------------------
@@ -131,13 +130,13 @@ def compare_df(data_master,fc):
 
 def comp_stats(comp_df):
     comp = comp_df.loc[comp_df["type"]=='forecast']
-    p_mean = comp["Predicción"].values.mean()
-    p_sum = comp["Predicción"].values.sum()
-    p_max = comp["Predicción"].values.max()
+    p_mean = comp["Prediccion"].values.mean()
+    p_sum = comp["Prediccion"].values.sum()
+    p_max = comp["Prediccion"].values.max()
     r_mean = comp["Real"].values.mean()
     r_sum = comp["Real"].values.sum()
     r_max = comp["Real"].values.max()
     stats_dic={'Suma':[p_sum, r_sum],'Media':[p_mean, r_mean],'Máximo':[p_max, r_max]}
-    stats_df = pd.DataFrame(stats_dic, index=['Predicción', 'Real'])
+    stats_df = pd.DataFrame(stats_dic, index=['Prediccion', 'Real'])
     return stats_df
 #----------------------------------------------------
