@@ -3,7 +3,6 @@ import numpy as np
 import json
 import os
 
-import model_mk
 import settings
 import graphs
 import ml_tools
