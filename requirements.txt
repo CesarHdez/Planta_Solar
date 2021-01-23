@@ -3,6 +3,7 @@ streamlit==0.71.0
 tensorflow==2.1.0
 numpy==1.16.5
 openpyxl==3.0.0
+xlrd==2.0.1
 Keras==2.3.1
 pandas==0.25.1
 seaborn==0.9.0

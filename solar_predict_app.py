@@ -165,7 +165,7 @@ def page_spanish(state):
         st.write("""Los modelos que utiliza esta aplicación comparten la misma arquitectura
         que consiste en una Red Neuronal Artificial con dos capas ocultas: la primera conformada 
         por celdas recurrentes y la segunda por neuronas convencionales. El número de neuronas 
-        recurrentes (paámetro a configurar) es el doble del número de neuronas de la segunda capa.""")
+        recurrentes (parámetro a configurar) es el doble del número de neuronas de la segunda capa.""")
         st.image(settings.app_src_path+"model_structure.png")
 
 
