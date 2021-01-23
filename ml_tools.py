@@ -8,9 +8,6 @@ import glob
 import json
 import pickle
 
-from sklearn.metrics import r2_score
-
-import tools
 import settings
 #-----------------
 #With data
@@ -194,8 +191,7 @@ def predict_n_ahead(model, n_ahead, last_input):
     yhat = [y[0][0] for y in yhat]
     return yhat
 
-def det_coef(x,y):
-    return r2_score(x,y)
+
 
 #-----------------
 #With experiments

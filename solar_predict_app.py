@@ -122,7 +122,7 @@ def load_models_config():
 #--------------------------------------------------------------------------
 def main():
     state = _get_state()
-    pages = {"Español": page_español, "English": page_english,}
+    pages = {"Español": page_spanish, "English": page_english,}
 
     page = st.sidebar.radio("Idioma/Language", tuple(pages.keys()))
     # leng_comp = st.sidebar.empty()
@@ -130,7 +130,7 @@ def main():
     pages[page](state)
     state.sync()
 
-def page_español(state):
+def page_spanish(state):
     st.title('Predictor de Producción Fotovoltaica')
     st.image(settings.app_src_path+"solar_plant_logo.png", use_column_width=True)
 
@@ -227,7 +227,7 @@ def page_español(state):
             predict_header = st.empty()
 
             predict_header.info('Realizando predicción...')
-            fc = app_tools.make_predicción(model, n_ahead, data, data_r, data_mean_2, data_std_2)
+            fc = app_tools.make_prediccion(model, n_ahead, data, data_r, data_mean_2, data_std_2)
 
             comp_df = app_tools.compare_df(data_master,fc)
             comp = comp_df.drop(columns=['type'])
@@ -362,7 +362,7 @@ def page_english(state):
 
             predict_header = st.empty()
             predict_header.info('Making prediction...')
-            fc = app_tools.make_predicción(model, n_ahead, data, data_r, data_mean_2, data_std_2)
+            fc = app_tools.make_prediccion(model, n_ahead, data, data_r, data_mean_2, data_std_2)
             comp_df = app_tools.compare_df(data_master,fc)
             comp_df2 = comp_df.rename(columns = {'Predicción':'Prediction'})
             comp = comp_df2.drop(columns=['type'])

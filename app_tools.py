@@ -3,13 +3,8 @@ import numpy as np
 import json
 import os
 
-from keras.models import load_model
-
-import model_mk
 import settings
-import graphs
 import ml_tools
-import tools
 import datetime
 from tensorflow.keras.models import load_model
 
@@ -108,7 +103,7 @@ def get_data_2_predict(data, conf, date):
     return data, data_r, data_mean, data_std
 
 #---------------------------------------------
-def make_predicción(model, n_ahead, data, data_r, data_mean_2, data_std_2):
+def make_prediccion(model, n_ahead, data, data_r, data_mean_2, data_std_2):
     data_r.reshape((len(data_r),1))
     yhat = ml_tools.predict_n_ahead(model, n_ahead, data_r)
     yhat = ml_tools.desnormalize(np.array(yhat), data_mean_2, data_std_2)
@@ -127,11 +122,11 @@ def compare_df(data_master,fc):
 #    r_sum = r_df["ENERGY"].values.sum()
     comp_df = fc
     comp_df.set_index("DateTime", inplace = True)
-    comp_df = comp_df.rename(columns = {'ENERGY':'Predicción'})
+    comp_df = comp_df.rename(columns = {'ENERGY':'Prediccion'})
     r_df= r_df["ENERGY"]
     comp_df = comp_df.join(r_df)
     comp_df = comp_df.rename(columns = {'ENERGY':'Real'})
-    comp_df.Real.fillna(comp_df.Predicción, inplace=True)
+    comp_df.Real.fillna(comp_df.Prediccion, inplace=True)
     return comp_df
 
 def comp_stats(comp_df):
