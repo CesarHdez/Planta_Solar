@@ -105,7 +105,7 @@ def _get_state(hash_funcs=None):
 @st.cache
 def load_data(data=None):
 	if data is None:
-		data = pd.read_excel(settings.app_src_path +'app_data_2.xlsx', sheet_name='data')
+		data = pd.read_excel(settings.app_src_path +'app_data_2.xls', sheet_name='data')
 	else:
 		data = pd.read_excel(data, sheet_name='data')
 	data['DateTime'] = pd.to_datetime(data['DateTime'])
