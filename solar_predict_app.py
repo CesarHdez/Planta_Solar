@@ -106,7 +106,7 @@ def _get_state(hash_funcs=None):
 @st.cache
 def load_data(data=None):
 	if data is None:
-		data = pd.read_excel('app_data_2.xlsx', sheet_name='data')
+		data = pd.read_excel(settings.app_src_path +'app_data_2.xlsx', sheet_name='data')
 	else:
 		data = pd.read_excel(data, sheet_name='data')
 	data['DateTime'] = pd.to_datetime(data['DateTime'])
@@ -162,7 +162,7 @@ def page_español(state):
         return query, features
     #----------------------------------------------------------------------------
 
-    with st.beta_expander("Sobre los modelos"):
+    with st.beta_expander("Acerca de los modelos"):
         st.write("""Los modelos que utiliza esta aplicación comparten la misma arquitectura
         que consiste en una Red Neuronal Artificial con dos capas ocultas: la primera conformada 
         por celdas recurrentes y la segunda por neuronas convencionales. El número de neuronas 
@@ -297,7 +297,7 @@ def page_english(state):
         return query, features
     #----------------------------------------------------------------------------
 
-    with st.beta_expander("About the models"):
+    with st.beta_expander("About models"):
         st.write("""The models used by this application share the same architecture 
             consisting of an Artificial Neural Network with two hidden layers: the 
             first made up of recurrent cells and the second made up of conventional 
