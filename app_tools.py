@@ -5,7 +5,6 @@ import os
 
 import settings
 import ml_tools
-import tools
 import datetime
 from tensorflow.keras.models import load_model
 
