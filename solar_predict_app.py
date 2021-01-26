@@ -139,7 +139,7 @@ def page_spanish(state):
     load_state.text("")
 
     st.sidebar.header('Datos')
-    upload_file = st.sidebar.file_uploader("Cargue el archivo de datos (.csv o .xlsx)", type=["csv","xlsx"])
+    upload_file = st.sidebar.file_uploader("Cargue el archivo de datos (.csv o .xls)", type=["csv","xls"])
     #--------------------------------------------------------------------------
 
     st.sidebar.header('Parámetros del Modelo')
@@ -248,7 +248,7 @@ def page_spanish(state):
                 <style>
                 #MainMenu {visibility: hidden;}
                 footer:after {
-                content:"Esta aplicación fue desarrollada como parte del trabajo de investigación de César Hernández para optar por el grado de Magister en Informátiga y Ciencias de la Computación de la Universidad de Atacama."; 
+                content:"Esta aplicación fue desarrollada como parte del trabajo de investigación de César Hernández para optar por el grado de Magister en Informática y Ciencias de la Computación de la Universidad de Atacama, Chile."; 
                 visibility: visible;
                 display: block;
                 position: center;
